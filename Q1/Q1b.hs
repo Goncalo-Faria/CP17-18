@@ -67,32 +67,24 @@ import BTree
 --- o segP separa e soma o valor das entidades iguais.
 
 -- < p1 , swap . <p1 p2. segP > >
-duptrans :: Either () (Transaction, [(Entity, Value)] ) -> [(Entity, Value)]
---duptrans = undefined
-duptrans = either nil ( (uncurry ccat) . ( aux >< id ) )
-        where aux = cons . (split (swap.(((-1)*)><id).p2) (singl.(id><p1)))
 
 
-logtrans :: Blockchain -> [(Entity, Value)]
-logtrans = (cataList duptrans) . allTransactions
-
---- dá para aplicar a regra do comp cata. ("recursividade mutipla")
-
--- isto é um cataList
+logtrans :: Transactions -> [(Entity, Value)]
+logtrans = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
+    where aux = split (swap.(((-1)*)><id).p2) (id><p1)
+    
+-- isto é um cataList (tem de ser convertido)
 partit ::((Entity, Value), [(Entity, Value)]) -> (([(Entity, Value)], [(Entity, Value)]), Value)
 partit (p , [])                   = (([],[]),0)
 partit (p , (h:t)) | p1 p < p1 h  = let ((s,l),e) = partit (p,t) in ((h:s,l), e)
                    | p1 p == p1 h = let ((s,l),e) = partit (p,t) in ((s,l), p2 h + e)
                    | otherwise    = let ((s,l),e) = partit (p,t) in ((s,h:l), e)
 
-coreb :: [(Entity, Value)] -> Either () ((Entity, Value), ([(Entity, Value)], [(Entity, Value)]))
-coreb = ((!) -|- (part2.part1)).outList
-    where part1 = split p1 (swap.partit)
-          part2 = split (split (p1.p1) ((uncurry (+)).( p2 ><p1 ))) (p2.p2) 
-
-
-ledger = (hyloBTree inord coreb).logtrans
-
+bind = cons.(id><(uncurry ccat)).part2.part1
+  where part1 = split p1 (swap.partit)
+        part2 = split (split (p1.p1) ((uncurry (+)).( p2 ><p1 ))) (p2.p2) 
+        
+ledger = (either nil bind).outList.logtrans.allTransactions
 
 --(B) ACCOUNTING METHOD -------------------------------------------------------------------------------
 -- TWICE FASTER.

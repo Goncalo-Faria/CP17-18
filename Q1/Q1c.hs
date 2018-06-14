@@ -1,4 +1,3 @@
-
 import Q1
 import BTree
 import List
@@ -10,6 +9,6 @@ isValidMagicNr = (uncurry (==)) . (split (length.group) length) .
 
 
 
-groupy []            = [[]] 
-groupy (h:t)| x == h = let (y:ys) = groupy x t in (h:y):ys
-            | x != h = let l = groupy x t in h:l
+-- groupy []            = [[]] 
+-- groupy (h:t)| x == h = let (y:ys) = groupy x t in (h:y):ys
+   --          | x != h = let l = groupy x t in h:l

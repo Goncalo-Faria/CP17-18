@@ -41,23 +41,22 @@ invertQTree = fmap inv
 -------
 --anaQTree
 
-compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
+compressQTree 0 qt = qt 
+compressQTree 1 qt = qt
+compressQTree n qt = anaQTree gene $ compressQTree (n-1) qt
 
-gene = either reduce verifica . outQTree
+gene = either i1 verifica . outQTree
 
-verifica = cond evCell (i1.toCell.fst) i2
+verifica = cond evCell (i1 . conv) i2
 
-reduce (c,(a,b)) = i1 (c,(div a 2,div b 2))
+evCell (a,(b,(c,d))) = and $ map isCell [a,b,c,d]
 
-evCell = either true cl . baseQTree true isCell .i2
+conv = inct .(id><(p2.p2))
 
-cl = and.(and><and).assocl 
+inct ((Cell a1 b1 c1),(Cell a2 b2 c2)) = (a1,((b1+b2),(c1+c2)))
 
-
-isCell (Cell _ 1 1) = True
+isCell (Cell _ _ _) = True
 isCell _ = False
-
-toCell (Cell a b c) = cr3 id a b c
 
 outlineQTree = undefined
 

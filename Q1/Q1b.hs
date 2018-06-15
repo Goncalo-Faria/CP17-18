@@ -68,7 +68,7 @@ import BTree
 
 -- < p1 , swap . <p1 p2. segP > >                   
         
-ledger = (either nil bind).outList.changes.allTransactions
+ledger = either nil bind .outList.changes.allTransactions
 
 changes = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
     where aux = split (swap.(((-1)*)><id).p2) (id><p1)

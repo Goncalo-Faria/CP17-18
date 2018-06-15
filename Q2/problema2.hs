@@ -33,8 +33,7 @@ instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
 
 rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
-scaleQTree n = cataQTree (inQTree . ((scl n) -|- id)) 
-    where scl n = id >< ((n*) >< (n*))
+scaleQTree n = cataQTree (inQTree . (scl n -|- id)) where scl n = id >< ((n*) >< (n*))
 
 invertQTree :: QTree PixelRGBA8 -> QTree PixelRGBA8
 invertQTree = fmap inv 
@@ -50,7 +49,7 @@ verifica = cond evCell (i1.toCell.fst) i2
 
 reduce (c,(a,b)) = i1 (c,(div a 2,div b 2))
 
-evCell = (either true cl).(baseQTree true isCell).i2
+evCell = either true cl . baseQTree true isCell .i2
 
 cl = and.(and><and).assocl 
 

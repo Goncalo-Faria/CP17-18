@@ -35,25 +35,24 @@ inFTree (Right (x,(a,b)) ) = (Comp x  a b)
 outFTree (Unit x) = i1 x
 outFTree (Comp x  a b) = i2 (x,(a,b))
 
-recFTree g = baseFTree id id g
+recFTree = baseFTree id id
 
-cataFTree g = g . (recFTree (cataFTree g)) . outFTree
+cataFTree g = g . recFTree (cataFTree g) . outFTree
 
-anaFTree g = inFTree . (recFTree (anaFTree g) ) . g
+anaFTree g = inFTree . recFTree (anaFTree g) . g
 
 hyloFTree h g = cataFTree h . anaFTree g
 
 baseFTree f o g = o -|- (f >< (g >< g))
 
 --Funoes auxiliares---
-to_Float :: Int -> Float
-to_Float x = fromIntegral x / 1
+
 
 instance BiFunctor FTree where
     bmap f g =  cataFTree ( inFTree . baseFTree f g id)
 
 generatePTree = anaFTree gene
-            where gene = ( (const (to_Float 0) ) -|- (split (to_Float.succ) (split id id) )) . outNat
+            where gene = zero -|- split succ (split id id) . outNat
 
 contaNodos :: PTree -> Integer
 contaNodos = cataFTree gene 
@@ -82,13 +81,13 @@ ex2 = pictures [color red (circleSolid 100),color white (rectangleSolid 100 50)]
 
 
 valor :: PTree -> Square
-valor = (either id p1) . outFTree  
+valor = either id p1 . outFTree  
 
 drawPTree = recolherPicTree . modifyPTree
 
 
 recolherPicTree :: FTree Picture Picture -> [Picture]
-recolherPicTree = cataFTree (either singl (cons . (id >< concat )) )
+recolherPicTree = cataFTree (either singl (cons . (id >< concat )))
 
 modifyPTree :: PTree -> FTree Picture Picture
 modifyPTree = (uncurry ( (uncurry bmap ) . (dup.submax) ) ) . dup 
@@ -102,7 +101,7 @@ submax x = getRect . ( uncurry (**) ) . ( split (const golden) ( (uncurry (-) ) 
 			where golden = (sqrt 2)/2
 				
 getRect :: Square -> Picture
-getRect = (uncurry rectangleSolid) . dup 
+getRect = uncurry rectangleSolid . dup 
 
 
 

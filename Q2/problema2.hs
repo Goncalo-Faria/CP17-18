@@ -54,7 +54,7 @@ evCell = either true cl . baseQTree true isCell .i2
 cl = and.(and><and).assocl 
 
 
-isCell Cell{} = True
+isCell (Cell _ 1 1) = True
 isCell _ = False
 
 toCell (Cell a b c) = cr3 id a b c

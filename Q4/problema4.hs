@@ -17,7 +17,7 @@ type Square = Float
 
 inPTree :: Either Square (Square , (PTree ,PTree)) -> PTree
 inPTree (Left x) = Unit x
-inPTree (Right (x,(a,b)) ) = (Comp x  a b)
+inPTree (Right (x,(a,b)) ) = Comp x  a b
 
 outPTree :: PTree -> Either Square (Square , (PTree ,PTree))
 outPTree (Unit x) = i1 x
@@ -29,7 +29,7 @@ outPTree (Comp x  a b) = i2 (x,(a,b))
 --recPTree g = id -|- (id >< (g >< g))
 
 inFTree (Left x) = Unit x
-inFTree (Right (x,(a,b)) ) = (Comp x  a b)
+inFTree (Right (x,(a,b)) ) = Comp x a b
 
 --outPTree :: PTree -> Either Square (Square , (PTree ,PTree))
 outFTree (Unit x) = i1 x
@@ -90,15 +90,15 @@ recolherPicTree :: FTree Picture Picture -> [Picture]
 recolherPicTree = cataFTree (either singl (cons . (id >< concat )))
 
 modifyPTree :: PTree -> FTree Picture Picture
-modifyPTree = (uncurry ( (uncurry bmap ) . (dup.submax) ) ) . dup 
+modifyPTree = uncurry ( uncurry bmap  . (dup.submax) ) . dup 
 
 
 -- modifyPTree = (uncurry ((flip bmap) id) ). (split submax id)
 
 
 submax :: PTree -> Square -> Picture
-submax x = getRect . ( uncurry (**) ) . ( split (const golden) ( (uncurry (-) ) . (split (const (valor x)) id) ) )
-			where golden = (sqrt 2)/2
+submax x = getRect . uncurry (**) . split (const golden) ( uncurry (-) . split (const (valor x)) id )
+			where golden = sqrt 2 /2
 				
 getRect :: Square -> Picture
 getRect = uncurry rectangleSolid . dup 

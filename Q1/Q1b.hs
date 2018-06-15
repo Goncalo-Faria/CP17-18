@@ -66,25 +66,21 @@ import BTree
 
 --- o segP separa e soma o valor das entidades iguais.
 
--- < p1 , swap . <p1 p2. segP > >
-
-
-logtrans :: Transactions -> [(Entity, Value)]
-logtrans = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
-    where aux = split (swap.(((-1)*)><id).p2) (id><p1)
-    
--- isto é um cataList (tem de ser convertido)
-partit ::((Entity, Value), [(Entity, Value)]) -> (([(Entity, Value)], [(Entity, Value)]), Value)
-partit (p , [])                   = (([],[]),0)
-partit (p , (h:t)) | p1 p < p1 h  = let ((s,l),e) = partit (p,t) in ((h:s,l), e)
-                   | p1 p == p1 h = let ((s,l),e) = partit (p,t) in ((s,l), p2 h + e)
-                   | otherwise    = let ((s,l),e) = partit (p,t) in ((s,h:l), e)
-
-bind = cons.(id><(uncurry ccat)).part2.part1
-  where part1 = split p1 (swap.partit)
-        part2 = split (split (p1.p1) ((uncurry (+)).( p2 ><p1 ))) (p2.p2) 
+-- < p1 , swap . <p1 p2. segP > >                   
         
-ledger = (either nil bind).outList.logtrans.allTransactions
+ledger = (either nil bind).outList.changes.allTransactions
+
+changes = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
+    where aux = split (swap.(((-1)*)><id).p2) (id><p1)
+
+bind = cons.(id><(uncurry ccat)).
+    (split (split (p1.p1) ((uncurry (+)).( p2 ><p1 ))) (p2.p2))
+            (split p1 (swap.partit))
+
+partit p = cataList (either (const (([],[]),0)) (segv p))
+      where segv p (h,((s,l),e))  | p1 p < p1 h  = ((h:s,l), e)
+                                  | p1 p == p1 h = ((s,l), p2 h + e)
+                                  | otherwise    = ((s,h:l), e)   
 
 --(B) ACCOUNTING METHOD -------------------------------------------------------------------------------
 -- TWICE FASTER.

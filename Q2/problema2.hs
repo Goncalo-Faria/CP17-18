@@ -24,7 +24,7 @@ inQTree = either (uncr3 Cell) (uncr4 Block)
 outQTree (Cell a b c) = cr3 i1 a b c
 outQTree (Block a b c d) = cr4 i2 a b c d
 baseQTree f g = (f >< id) -|- (g >< (g >< (g >< g)))
-recQTree g = baseQTree id g
+recQTree = baseQTree id 
 cataQTree g = g . recQTree (cataQTree g) . outQTree
 anaQTree g = inQTree . recQTree (anaQTree g) . g
 hyloQTree h g = cataQTree h . anaQTree g
@@ -42,28 +42,23 @@ invertQTree = fmap inv
 -------
 --anaQTree
 
-compressQTree 0 = id
-compressQTree n =  anaQTree gene . compressQTree (n-1)
+compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
 
---compressQTree :: Int -> QTree a -> QTree a
---compressQTree = cataNat (either id (anaQTree gene))
+gene = either reduce verifica . outQTree
 
-
-gene = (either reduce (verifica.fix) ).outQTree
-fix (a,(b,(c,d))) = [a,b,c,d]
-unfix [a,b,c,d]   = (a,(b,(c,d)))
-
-verifica l | evCell l  = i1 $ toCell $ head l
-           | otherwise = i2 (unfix l)
+verifica = cond evCell (i1.toCell.fst) i2
 
 reduce (c,(a,b)) = i1 (c,(div a 2,div b 2))
 
-evCell = foldr (\h r -> ifCell h && r) True
+evCell = (either true cl).(baseQTree true isCell).i2
 
-ifCell (Cell _ _ _) = True
-ifCell _ = False
+cl = and.(and><and).assocl 
 
-toCell (Cell a b c) = (a,(b,c))
+
+isCell Cell{} = True
+isCell _ = False
+
+toCell (Cell a b c) = cr3 id a b c
 
 outlineQTree = undefined
 

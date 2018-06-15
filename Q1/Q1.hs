@@ -43,9 +43,9 @@ outBlockchain (Bcs (a,b)) = i2 (a,b)
 --- Functor -------------------------------------------------------------------------------------------------
 recBlockchain g = id -|- (id >< g )
 -----Cata && Ana && Hylo ------------------------------------------------------------------------------------
-cataBlockchain g = g . ( recBlockchain ( cataBlockchain g) ) . outBlockchain    
+cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain    
 
-anaBlockchain g = inBlockchain . ( recBlockchain (anaBlockchain g) ) . g
+anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 -------------------------------------------------------------------------------------------------------------

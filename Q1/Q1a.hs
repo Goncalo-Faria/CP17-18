@@ -36,11 +36,11 @@ listTrans =  concat . listlistTr . listBl
 
 --- ccat . < p2 . p2 . [id , p2 ] , [NIL , id ] >
 
-tGene = (uncurry ccat) . ( split (p2 . p2 . (either id p1 ) ) (either nil p2 )  ) 
+tGene = uncurry ccat . split (p2 . p2 . either id p1 ) (either nil p2 ) 
 
 getTrans = cataBlockchain tGene
 
 -------------------------------------------------------------------------------------------------------------
 allTransactions :: Blockchain -> Transactions
-allTransactions =  cataBlockchain ( (uncurry ccat) . ( split (p2 . p2 . (either id p1 ) ) (either nil p2 )  ) )
+allTransactions =  cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1) (either nil p2 ))
 -------------------------------------------------------------------------------------------------------------

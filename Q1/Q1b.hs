@@ -73,8 +73,8 @@ ledger = (either nil bind).outList.changes.allTransactions
 changes = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
     where aux = split (swap.(((-1)*)><id).p2) (id><p1)
 
-bind = cons.(id><(uncurry ccat)).
-    (split (split (p1.p1) ((uncurry (+)).( p2 ><p1 ))) (p2.p2))
+bind = cons.(id><uncurry ccat).
+    split (split (p1.p1) (add.( p2 ><p1 ))) (p2.p2)
             (split p1 (swap.partit))
 
 partit p = cataList (either (const (([],[]),0)) (segv p))

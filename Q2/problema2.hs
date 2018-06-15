@@ -38,9 +38,33 @@ scaleQTree n = cataQTree (inQTree . ((scl n) -|- id))
 
 invertQTree :: QTree PixelRGBA8 -> QTree PixelRGBA8
 invertQTree = fmap inv 
-    where inv (PixelRGBA8 a b c d) = let minus = uncurry (-) . (split (const 255) id) in PixelRGBA8 (minus a) (minus b) (minus c) d
+    where inv (PixelRGBA8 a b c d) = let minus = (255-) in PixelRGBA8 (minus a) (minus b) (minus c) d
+-------
+--anaQTree
 
-compressQTree = undefined
+compressQTree 0 = id
+compressQTree n =  anaQTree gene . compressQTree (n-1)
+
+--compressQTree :: Int -> QTree a -> QTree a
+--compressQTree = cataNat (either id (anaQTree gene))
+
+
+gene = (either reduce (verifica.fix) ).outQTree
+fix (a,(b,(c,d))) = [a,b,c,d]
+unfix [a,b,c,d]   = (a,(b,(c,d)))
+
+verifica l | evCell l  = i1 $ toCell $ head l
+           | otherwise = i2 (unfix l)
+
+reduce (c,(a,b)) = i1 (c,(div a 2,div b 2))
+
+evCell = foldr (\h r -> ifCell h && r) True
+
+ifCell (Cell _ _ _) = True
+ifCell _ = False
+
+toCell (Cell a b c) = (a,(b,c))
+
 outlineQTree = undefined
 
 y = Block
@@ -51,25 +75,3 @@ y = Block
  (Block
   (Cell 1 2 2) (Cell 0 2 2) (Cell 0 2 2) (Block
    (Cell 0 1 1) (Cell 0 1 1) (Cell 0 1 1) (Cell 1 1 1)))
-
-
-gene = either f g
-    where f (a,b) = b*b  :: Int
-          g (a,(b,(c,d))) = a+b+c+d :: Int
-
-
-alturaQ = cataQTree lgen  
-lgen = either (const 1) (succ . m . (id >< (m . (id >< m ))))
-    where m = uncurry max 
-
-gencmp n = either ( a ) ( b n )
-
-
-stop  = split inQtree (split (const 0) (getV . p1) ) 
-
-goon n (x1,(x2,(x3,x4))) = if ((equals (x1,(x2,(x3,x4)))) && (n == (p1.p2 x1)))
-  
- --- a ::  ( Cell ) -> (Qtree, (0 , vector ) )
-getV (PixelRGBA8 a b c d) = [a,b,c,d]
-equals = (==1).length.group.cons.(p1.p2><cons.(p1.p2><cons.(p1.p2><singleton.p1.p2)))
-

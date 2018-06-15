@@ -8,7 +8,7 @@ import LTree
 isValidMagicNr = hyloLTree (either id and) eqSep .
                             cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
 
-eqSep = either (i1.true) cond ((False==).p2) (i1.p2) (i2.p1) . uncurry finders . outList
+eqSep = either (i1.true) (cond ((False==).p2) (i1.p2) (i2.p1) . uncurry finders) . outList
 
 finders p = cataList (either (const (([],[]),True)) (segment p))
     where segment p (h,((s,l),b)) | p < h     = ((h:s,l), b)

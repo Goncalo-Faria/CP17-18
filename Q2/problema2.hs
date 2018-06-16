@@ -44,7 +44,7 @@ invertQTree = fmap inv
 -------
 --anaQTree
 
-compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
+compressQTree = flip (cataNat.uncurry either. split const (const (anaQTree gene)))
 
 gene = either i1 verifica . outQTree
 
@@ -57,17 +57,19 @@ merge (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
 isCell Cell{} = True
 isCell _ = False
 
+---------------------------------------------
+
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 cataQTree (either (baser f) mulkernel)
 
 baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
 
-mulkernel = ( engage frame >< engage id ) . split (operate p1) (operate p2) 
-
-engage f x = let (a,(b,(c,d))) = operate f x in (a <|> b) <-> (c <|> d)
-
-frame = gen mapCol (const true) ncols . gen mapRow (const true) nrows where
-            gen funct f par = uncurry (funct f) . split par (funct f 1)
+mulkernel = (engage (gen mapCol (const true) ncols.
+                            gen mapRow (const true) nrows) >< engage id).
+                                            split (operate p1) (operate p2) where
+            
+                engage f x = let (a,(b,(c,d))) = operate f x in (a <|> b) <-> (c <|> d)
+                gen funct f par = uncurry (funct f) . split par (funct f 1)
 
 y = Block
  (Cell 0 4 4) (Block

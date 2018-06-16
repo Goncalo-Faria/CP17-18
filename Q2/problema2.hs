@@ -43,14 +43,13 @@ invertQTree = fmap inv
 
 compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
 
-gene = either i1 (cond evCell (i1.join.(id><(p2.p2))) i2) . outQTree
+gene = either i1 verifica . outQTree
 
-evCell = and.(bothCell><bothCell).assocl
-    where bothCell = and.(isCell >< isCell)
+verifica = cond evCell (i1 . merge .(id><(p2.p2))) i2
 
-join (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
 
---evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
+merge ((Cell a1 b1 c1),(Cell a2 b2 c2)) = (a1,((b1+b2),(c1+c2)))
 
 isCell Cell{} = True
 isCell _ = False

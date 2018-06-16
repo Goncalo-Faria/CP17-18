@@ -11,6 +11,7 @@ import Data.Matrix
 data QTree a = Cell a Int Int | Block (QTree a) (QTree a) (QTree a) (QTree a) deriving(Eq,Show)
 
 
+invertQTree :: QTree PixelRGBA8 -> QTree PixelRGBA8
 ------------------------ Funções auxiliares ---------------------------------------------------------------------------------
 
 uncr3 f (a,(b,c)) = f a b c
@@ -35,47 +36,36 @@ hyloQTree h g = cataQTree h . anaQTree g
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
 
+----------------------- Questão 1 -------------------------------------------------------------------------------------------
 rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
+----------------------- Questão 2 -------------------------------------------------------------------------------------------
 scaleQTree n = cataQTree (inQTree . (scl n -|- id)) where scl n = id >< ((n*) >< (n*))
+----------------------- Questão 3 -------------------------------------------------------------------------------------------
+invertQTree = let inv (PixelRGBA8 a b c d) = PixelRGBA8 (255-a) (255-b) (255-c) d
+              in fmap inv 
+----------------------- Questão 4 -------------------------------------------------------------------------------------------
+compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
-invertQTree :: QTree PixelRGBA8 -> QTree PixelRGBA8
-invertQTree = fmap inv 
-    where inv (PixelRGBA8 a b c d) = let minus = (255-) in PixelRGBA8 (minus a) (minus b) (minus c) d
--------
---anaQTree
+                        compressUnit = bothQTree (cond evCell (i1 . merge .(id><(p2.p2))) i2)
+                        merge (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+                        evCell x    = let (a,(b,(c,d))) = operate isCell x 
+                                      in a && b && c && d 
+                                            where isCell Cell{} = True
+                                                  isCell _ = False
 
-compressQTree = flip (cataNat.uncurry either. split const (const (anaQTree gene)))
+bothQTree g = inQTree . recQTree (bothQTree g) . either i1 g . outQTree
 
-gene = either i1 verifica . outQTree
+-- bothQTree g == cataQTree (inQTree . either i1 g) == andaQTree (either i1 g . outQTree) 
 
-verifica = cond evCell (i1 . merge .(id><(p2.p2))) i2
-
-evCell x = let (a,(b,(c,d))) = operate isCell x in a && b && c && d
-
-merge (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
-
-isCell Cell{} = True
-isCell _ = False
-
----------------------------------------------
-
+----------------------- Questão 5 -------------------------------------------------------------------------------------------
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
-                                cataQTree (either (baser f) mulkernel)
+                                cataQTree (either (baser f) mulkernel) where
 
-baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
-
-mulkernel = (engage (gen mapCol (const true) ncols.
-                            gen mapRow (const true) nrows) >< engage id).
-                                            split (operate p1) (operate p2) where
+            baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
+            mulkernel = (engage border >< engage id).
+                                                split (operate p1) (operate p2)      
+            engage f x = let (a,(b,(c,d))) = operate f x 
+                         in (a <|> b) <-> (c <|> d)
+            border = let drawQ funct f par = uncurry (funct f) . split par (funct f 1)
+                     in drawQ mapCol (const true) ncols . drawQ mapRow (const true) nrows
             
-                engage f x = let (a,(b,(c,d))) = operate f x in (a <|> b) <-> (c <|> d)
-                gen funct f par = uncurry (funct f) . split par (funct f 1)
-
-y = Block
- (Cell 0 4 4) (Block
-  (Cell 0 2 2) (Cell 0 2 2) (Cell 1 2 2) (Block
-   (Cell 1 1 1) (Cell 0 1 1) (Cell 0 1 1) (Cell 0 1 1)))
- (Cell 1 4 4)
- (Block
-  (Cell 1 2 2) (Cell 0 2 2) (Cell 0 2 2) (Block
-   (Cell 0 1 1) (Cell 0 1 1) (Cell 0 1 1) (Cell 1 1 1)))

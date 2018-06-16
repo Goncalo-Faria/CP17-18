@@ -40,18 +40,17 @@ invertQTree = fmap inv
     where inv (PixelRGBA8 a b c d) = let minus = (255-) in PixelRGBA8 (minus a) (minus b) (minus c) d
 -------
 --anaQTree
+
 compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
 
-gene = either i1 verifica . outQTree
+gene = either i1 (cond evCell (i1.join.(id><(p2.p2))) i2) . outQTree
 
-verifica = cond evCell (i1 . conv) i2
+evCell = and.(bothCell><bothCell).assocl
+    where bothCell = and.(isCell >< isCell)
 
-evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
+join (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
 
--- and $ map
-conv = inct .(id><(p2.p2))
-
-inct (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+--evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
 
 isCell Cell{} = True
 isCell _ = False

@@ -10,7 +10,6 @@ import Data.Matrix
 
 data QTree a = Cell a Int Int | Block (QTree a) (QTree a) (QTree a) (QTree a) deriving(Eq,Show)
 
-
 invertQTree :: QTree PixelRGBA8 -> QTree PixelRGBA8
 ------------------------ Funções auxiliares ---------------------------------------------------------------------------------
 
@@ -62,10 +61,12 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 cataQTree (either (baser f) mulkernel) where
 
             baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
-            mulkernel = (engage border >< engage id).
+            mulkernel = (engage border >< engage id) .
                                                 split (operate p1) (operate p2)      
             engage f x = let (a,(b,(c,d))) = operate f x 
                          in (a <|> b) <-> (c <|> d)
-            border = let drawQ funct f par = uncurry (funct f) . split par (funct f 1)
-                     in drawQ mapCol (const true) ncols . drawQ mapRow (const true) nrows
+            border = let drawQ funct f par = uncurry (funct f) .
+                                split par (funct f 1)
+                     in drawQ mapCol (const true) ncols . 
+                                drawQ mapRow (const true) nrows
             

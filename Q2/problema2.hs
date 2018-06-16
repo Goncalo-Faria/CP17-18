@@ -40,22 +40,20 @@ invertQTree = fmap inv
     where inv (PixelRGBA8 a b c d) = let minus = (255-) in PixelRGBA8 (minus a) (minus b) (minus c) d
 -------
 --anaQTree
-
-compressQTree 0 qt = qt 
-compressQTree 1 qt = qt
-compressQTree n qt = anaQTree gene $ compressQTree (n-1) qt
+compressQTree = flip ( cataNat.uncurry either. split const (const (anaQTree gene)))
 
 gene = either i1 verifica . outQTree
 
 verifica = cond evCell (i1 . conv) i2
 
-evCell (a,(b,(c,d))) = and $ map isCell [a,b,c,d]
+evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
 
+-- and $ map
 conv = inct .(id><(p2.p2))
 
-inct ((Cell a1 b1 c1),(Cell a2 b2 c2)) = (a1,((b1+b2),(c1+c2)))
+inct (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
 
-isCell (Cell _ _ _) = True
+isCell Cell{} = True
 isCell _ = False
 
 outlineQTree = undefined

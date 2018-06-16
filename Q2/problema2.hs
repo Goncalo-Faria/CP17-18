@@ -6,6 +6,7 @@ import Nat
 import Codec.Picture.Types
 import Graphics.Gloss
 import Data.List
+import Data.Matrix
 
 data QTree a = Cell a Int Int | Block (QTree a) (QTree a) (QTree a) (QTree a) deriving(Eq,Show)
 
@@ -18,12 +19,14 @@ cr3 f a b c = f (a,(b,c))
 uncr4 f (a,(b,(c,d))) = f a b c d
 cr4 f a b c d = f (a,(b,(c,d)))
 
+operate g = g >< (g >< (g >< g))
+
 ----------------------- Funções principais ----------------------------------------------------------------------------------
 
 inQTree = either (uncr3 Cell) (uncr4 Block)
 outQTree (Cell a b c) = cr3 i1 a b c
 outQTree (Block a b c d) = cr4 i2 a b c d
-baseQTree f g = (f >< id) -|- (g >< (g >< (g >< g)))
+baseQTree f g = (f >< id) -|- operate g
 recQTree = baseQTree id 
 cataQTree g = g . recQTree (cataQTree g) . outQTree
 anaQTree g = inQTree . recQTree (anaQTree g) . g
@@ -47,14 +50,24 @@ gene = either i1 verifica . outQTree
 
 verifica = cond evCell (i1 . merge .(id><(p2.p2))) i2
 
-evCell (a,(b,(c,d))) = all isCell [a,b,c,d]
+evCell x = let (a,(b,(c,d))) = operate isCell x in a && b && c && d
 
-merge ((Cell a1 b1 c1),(Cell a2 b2 c2)) = (a1,((b1+b2),(c1+c2)))
+merge (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
 
 isCell Cell{} = True
 isCell _ = False
 
-outlineQTree = undefined
+outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
+                                cataQTree (either (baser f) mulkernel)
+
+baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
+
+mulkernel = ( engage frame >< engage id ) . split (operate p1) (operate p2) 
+
+engage f x = let (a,(b,(c,d))) = operate f x in (a <|> b) <-> (c <|> d)
+
+frame = gen mapCol (const true) ncols . gen mapRow (const true) nrows where
+            gen funct f par = uncurry (funct f) . split par (funct f 1)
 
 y = Block
  (Cell 0 4 4) (Block

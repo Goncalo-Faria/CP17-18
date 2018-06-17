@@ -35,14 +35,14 @@ hyloQTree h g = cataQTree h . anaQTree g
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
 
------------------------ Questão 1 -------------------------------------------------------------------------------------------
+----------------------- Questão A -------------------------------------------------------------------------------------------
 rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
------------------------ Questão 2 -------------------------------------------------------------------------------------------
+----------------------- Questão B -------------------------------------------------------------------------------------------
 scaleQTree n = cataQTree (inQTree . (scl n -|- id)) where scl n = id >< ((n*) >< (n*))
------------------------ Questão 3 -------------------------------------------------------------------------------------------
+----------------------- Questão C -------------------------------------------------------------------------------------------
 invertQTree = let inv (PixelRGBA8 a b c d) = PixelRGBA8 (255-a) (255-b) (255-c) d
               in fmap inv 
------------------------ Questão 4 -------------------------------------------------------------------------------------------
+----------------------- Questão D -------------------------------------------------------------------------------------------
 compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
                         compressUnit = bothQTree (cond evCell (i1 . merge .(id><(p2.p2))) i2)
@@ -56,7 +56,7 @@ bothQTree g = inQTree . recQTree (bothQTree g) . either i1 g . outQTree
 
 -- bothQTree g == cataQTree (inQTree . either i1 g) == andaQTree (either i1 g . outQTree) 
 
------------------------ Questão 5 -------------------------------------------------------------------------------------------
+----------------------- Questão E -------------------------------------------------------------------------------------------
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 cataQTree (either (baser f) mulkernel) where
 

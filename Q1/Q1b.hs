@@ -62,25 +62,23 @@ import BTree
 -- op3 = split (split (p1.p1.p2) (cons . ( id >< (p2.p1) )) ) (p2.p2)
 
 
----------------------------------------------------------------------------------------
-
---- o segP separa e soma o valor das entidades iguais.
-
--- < p1 , swap . <p1 p2. segP > >                   
+---------------------------------------------------------------------------------------                   
         
-ledger = either nil bind .outList.changes.allTransactions
+ledger = hyloBTree preord account . cataList changes . allTransactions
 
-changes = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
-    where aux = split (swap.(((-1)*)><id).p2) (id><p1)
+changes = either nil (cons . (id><cons) . assocr . 
+                        (split ( swap . (((-1)*)><id) . p2 ) (id><p1) >< id ) )
 
-bind = cons.(id><uncurry ccat).
-    split (split (p1.p1) (add.( p2 ><p1 ))) (p2.p2)
-            (split p1 (swap.partit))
+account = either (i1.(!)) 
+                    (i2 . condense . split p1 (uncurry partit . (p1><id))) .
+                                outList
 
-partit p = cataList (either (const (([],[]),0)) (segv p))
-      where segv p (h,((s,l),e))  | p1 p < p1 h  = ((h:s,l), e)
-                                  | p1 p == p1 h = ((s,l), p2 h + e)
-                                  | otherwise    = ((s,h:l), e)   
+condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
+
+partit p = cataList (either (const (0,([],[]))) (segv p))
+    where segv p (h,(e,(s,l))) | p < p1 h     = (e,(h:s,l))
+                               | p == p1 h    = ( p2 h + e ,(s,l))
+                               | otherwise    = ( e ,(s,h:l))   
 
 --(B) ACCOUNTING METHOD -------------------------------------------------------------------------------
 -- TWICE FASTER.

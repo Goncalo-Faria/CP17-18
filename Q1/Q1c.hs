@@ -8,9 +8,14 @@ import LTree
 isValidMagicNr = hyloLTree (either id and) eqSep .
                             cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
 
-eqSep = either (i1.true) (cond ((False==).p2) (i1.p2) (i2.p1) . uncurry finders) . outList
+eqSep = either (i1.true) 
+            (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) 
+                    . outList
+      
+finders = segment fr fgene basef where
+    fgene = const.const.const (False,([],[]))
+    fr = id
+    basef = const (True,([],[]))
 
-finders p = cataList (either (const (([],[]),True)) (segment p))
-    where segment p (h,((s,l),b)) | p < h     = ((h:s,l), b)
-                                  | p > h     = ((s,h:l), b)
-                                  | otherwise = (([],[]),False)
+
+

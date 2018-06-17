@@ -23,7 +23,8 @@ account = either (i1.(!))
 
 condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
 
-partit p = cataList (either (const (0,([],[]))) (segv p))
-    where segv p (h,(e,(s,l))) | p < p1 h     = (e,(h:s,l))
-                               | p == p1 h    = ( p2 h + e ,(s,l))
-                               | otherwise    = ( e ,(s,h:l))   
+
+partit = segment pr pgene basep where
+    pgene h e b =(p2 h + e, b)
+    pr = p1
+    basep = const (0,([],[]))

@@ -49,3 +49,8 @@ anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 -------------------------------------------------------------------------------------------------------------
+segment r f b p = cataList (either b (segv r f p))
+    where segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
+                                   | p > r h      = (e,(s,h:l))
+                                   | otherwise    = f h e (s,l)
+  

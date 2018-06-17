@@ -41,7 +41,8 @@ cataFTree g = g . recFTree (cataFTree g) . outFTree
 
 anaFTree g = inFTree . recFTree (anaFTree g) . g
 
-hyloFTree h g = cataFTree h . anaFTree g
+hyloFTree h g = h . recFTree ( hyloFTree h g ) . g
+
 
 baseFTree f o g = o -|- (f >< (g >< g))
 

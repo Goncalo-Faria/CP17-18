@@ -30,7 +30,7 @@ baseQTree f g = (f >< id) -|- operate g
 recQTree = baseQTree id 
 cataQTree g = g . recQTree (cataQTree g) . outQTree
 anaQTree g = inQTree . recQTree (anaQTree g) . g
-hyloQTree h g = cataQTree h . anaQTree g
+hyloQTree h g = h . recQTree ( hyloQTree h g ) . g
 
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
@@ -45,8 +45,9 @@ invertQTree = let inv (PixelRGBA8 a b c d) = PixelRGBA8 (255-a) (255-b) (255-c) 
 ----------------------- Questão D -------------------------------------------------------------------------------------------
 compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
-                        compressUnit = bothQTree (cond evCell (i1 . merge .(id><(p2.p2))) i2)
-                        merge (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+                        compressUnit = let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
+                                       in anaQTree (either i1 g . outQTree) 
+                        mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
                         evCell x    = let (a,(b,(c,d))) = operate isCell x 
                                       in a && b && c && d 
                                             where isCell Cell{} = True

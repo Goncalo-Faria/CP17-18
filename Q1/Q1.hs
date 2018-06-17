@@ -48,9 +48,43 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
--------------------------------------------------------------------------------------------------------------
+--- Funções Auxiliares --------------------------------------------------------------------------------------
 segment r f b p = cataList (either b (segv r f p))
     where segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
                                    | p > r h      = (e,(s,h:l))
                                    | otherwise    = f h e (s,l)
-  
+--- (A) -----------------------------------------------------------------------------------------------------
+allTransactions =  cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1) (either nil p2 ))
+--- (B) -----------------------------------------------------------------------------------------------------
+    -- Cria uma lista com o log de transações 0(N). (tamnanho 2N).
+    -- criar uma árvore com saldo. e ao fazer o partition soma o valor das transações -> 0(nLogn)
+    -- de todos os elementos iguais. 
+    -- faz preord transversal. 0(N) <- i think                
+        
+ledger = hyloBTree preord account . cataList changes . allTransactions
+
+changes = either nil (cons . (id><cons) . assocr . 
+                    (split ( swap . (((-1)*)><id) . p2 ) (id><p1) >< id ) )
+    
+account = either (i1.(!)) 
+                    (i2 . condense . split p1 (uncurry partit . (p1><id))) .
+                                    outList
+    
+condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
+    
+partit = segment pr pgene basep where
+    pgene h e b =(p2 h + e, b)
+    pr = p1
+    basep = const (0,([],[]))
+--- (C) -----------------------------------------------------------------------------------------------------
+isValidMagicNr = hyloLTree (either id and) eqSep .
+                            cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
+
+eqSep = either (i1.true) 
+            (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) 
+                    . outList
+      
+finders = segment fr fgene basef where
+    fgene = const.const.const (False,([],[]))
+    fr = id
+    basef = const (True,([],[]))

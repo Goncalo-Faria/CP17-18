@@ -3,6 +3,7 @@ module Q1 where
 import Cp
 import List
 import BTree
+import LTree
 
 --- Definições elementares --------------------------------------------------------------------------------- 
 type MagicNo = String
@@ -72,10 +73,9 @@ account = either (i1.(!))
     
 condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
     
-partit = segment pr pgene basep where
-    pgene h e b =(p2 h + e, b)
-    pr = p1
-    basep = const (0,([],[]))
+partit = segment p1 
+                (\ h e b -> (p2 h + e, b)) 
+                        (const (0,([],[])))
 --- (C) -----------------------------------------------------------------------------------------------------
 isValidMagicNr = hyloLTree (either id and) eqSep .
                             cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
@@ -84,7 +84,6 @@ eqSep = either (i1.true)
             (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) 
                     . outList
       
-finders = segment fr fgene basef where
-    fgene = const.const.const (False,([],[]))
-    fr = id
-    basef = const (True,([],[]))
+finders = segment id 
+                (const.const.const (False,([],[]))) 
+                                (const (True,([],[])))

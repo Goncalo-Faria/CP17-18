@@ -65,7 +65,7 @@ allTransactions =  cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1
 ledger = hyloBTree preord account . cataList changes . allTransactions
 
 changes = either nil (cons . (id><cons) . assocr . 
-                    (split ( swap . (((-1)*)><id) . p2 ) (id><p1) >< id ) )
+                    (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
     
 account = either (i1.(!)) 
                     (i2 . condense . split p1 (uncurry partit . (p1><id))) .

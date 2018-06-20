@@ -1,6 +1,7 @@
 -- (c) MP-I (1998/9-2006/7) and CP (2005/6-2018/19)
 
-module PTree where
+module Main(main) where
+
 
 import Graphics.Gloss
 import Cp
@@ -43,75 +44,60 @@ anaFTree g = inFTree . recFTree (anaFTree g) . g
 
 hyloFTree h g = h . recFTree ( hyloFTree h g ) . g
 
-
 baseFTree f o g = o -|- (f >< (g >< g))
 
---Funoes auxiliares---
+--Funcoes auxiliares---
 
 
 instance BiFunctor FTree where
     bmap f g =  cataFTree ( inFTree . baseFTree f g id)
 
-generatePTree = anaFTree gene
-            where gene = zero -|- split succ (split id id) . outNat
+generatePTree =  modifyPTree . anaFTree gene
+        where gene = ( zero -|- split succ (split id id) ) . outNat
+              
+              modifyPTree = ap.( (ap.(ap><id).assocl) >< id ) .
+                                        (split (const bmap) (dup.submax) >< id ) . dup
 
-contaNodos :: PTree -> Integer
-contaNodos = cataFTree gene 
-				where gene = either (const 1) (add . (const 1 >< add) ) 
+              submax x = let valor  = either id p1 . outFTree  
+                         in  uncurry (**) . 
+                                    split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) .
+                                                                        split (const (valor x)) id )
 
---print_image :: IO()
---print_image = display window white (rectangleSolid 2 2)
+drawPTree = cataFTree gene
+    where   gene = either (singl . square) 
+                                ( cons . ( square >< conc ) . engage)
 
--- desenhar em fundo branco
-window :: Display
-window = InWindow "Gloss" (800,600) (0,0)
--- numa janela com 800x600 pixels
-
-ex1 ::Picture
-ex1 = rectangleSolid 10 10
---w um círculo cheio com 100 pixels de raio
-ex2 ::Picture
-ex2 = pictures [color red (circleSolid 100),color white (rectangleSolid 100 50)]
-
---drawPTree :: PTree -> [Picture]
---drawPTree (Unit x) = singl( uncurry rectangleSolid (my_dup x))
---drawPTree (Comp x a b) = uncurry (++) ((uncurry (++) (singl(rectangleSolid x x) , drawPTree a)), drawPTree b)
-
---drawPTree = cataFTree gene
---		where gene = either (singl . (uncurry rectangleSolid) . dup) (cons . ( (uncurry rectangleSolid) . dup >< concat ) )
+            engage = let pad x y = fmap . uncurry (.) .
+                                split (uncurry translate . split x id) (const (rotate (y 45)))
+                     in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) .
+                                                                                     split (id><p1) (id><p2))
 
 
-valor :: PTree -> Square
-valor = either id p1 . outFTree  
 
-drawPTree = recolherPicTree . modifyPTree
-
-
-recolherPicTree :: FTree Picture Picture -> [Picture]
-recolherPicTree = cataFTree (either singl (cons . (id >< concat )))
-
-modifyPTree :: PTree -> FTree Picture Picture
-modifyPTree = uncurry ( uncurry bmap  . (dup.submax) ) . dup 
-
-
--- modifyPTree = (uncurry ((flip bmap) id) ). (split submax id)
-
-
-submax :: PTree -> Square -> Picture
-submax x = getRect . uncurry (**) . split (const golden) ( uncurry (-) . split (const (valor x)) id )
-			where golden = sqrt 2 /2
-				
+--submax :: PTree -> Square -> Picture
+--submax x = getRect . uncurry (**) . split (const golden) ( uncurry (-) . split (const (valor x)) id )
+  --          where golden = sqrt 2 /2
+            
 getRect :: Square -> Picture
 getRect = uncurry rectangleSolid . dup 
 
 
+window = (InWindow "CP" (800,800) (0,0))
+square s = rectangleSolid s s
 
+main = animatePTree 20
+
+animatePTree :: Integer -> IO ()
+animatePTree n = animate window white draw
+    where
+    pics = pictures $ drawPTree (bmap (80*) (80*) (generatePTree n) )
+    draw t = pics 
 
 -- B(X,Y) = (X) -|- (X) >< ((Y) >< (Y))
 -- B(id,f)
 -- (X) -|- (X) >< ([PICTURES] >< [PICTURES])
 
---      (cons . ( (uncurry rectangleSolid) . mydup >< (uncurry (++)) ) )
+--      (cons . ( square >< (uncurry (++)) ) )
 
 -- (3) Map ---------------------------------------------------------------------
 

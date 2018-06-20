@@ -34,7 +34,6 @@ hyloQTree h g = h . recQTree ( hyloQTree h g ) . g
 
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
-
 ----------------------- Questão A -------------------------------------------------------------------------------------------
 rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
 ----------------------- Questão B -------------------------------------------------------------------------------------------
@@ -70,4 +69,3 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 split par (funct f 1)
                      in drawQ mapCol (const true) ncols . 
                                 drawQ mapRow (const true) nrows
-            

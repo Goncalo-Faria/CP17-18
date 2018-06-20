@@ -995,13 +995,15 @@ ledger = hyloBTree preord account . cataList changes . allTransactions
 
 changes = either nil (cons . (id><cons) . assocr . 
                     (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
-    
+                    
+account :: (Ord a , Num b) => [(a, b)]-> Either () ((a, b), ([(a, b)], [(a, b)]))    
 account = either (i1.(!)) 
                     (i2 . condense . split p1 (uncurry partit . (p1><id))) .
                                     outList
     
 condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
-    
+
+partit :: (Ord a , Num b) => a -> [(a,b)] -> (b, ([(a,b)], [(a,b)]))    
 partit = segment p1 
                 (\ h e b -> (p2 h + e, b)) 
                         (const (0,([],[])))  
@@ -1052,27 +1054,27 @@ invertQTree = fmap inv
 
 compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
-                        compressUnit = let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
-                                       in anaQTree (either i1 g . outQTree) 
-                        mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
-                        evCell x    = let (a,(b,(c,d))) = operate isCell x 
-                                      in a && b && c && d 
-                                            where isCell Cell{} = True
-                                                  isCell _ = False
+        compressUnit = let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
+                       in anaQTree (either i1 g . outQTree) 
+        mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+        evCell x     = let (a,(b,(c,d))) = operate isCell x 
+                       in a && b && c && d 
+                                where isCell Cell{} = True
+                                      isCell _ = False
 
 
 
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 cataQTree (either (baser f) mulkernel) where
 
-            baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
-            mulkernel = (engage border >< engage id) .
-                                                split (operate p1) (operate p2)      
-            engage f x = let (a,(b,(c,d))) = operate f x 
-                         in (a <|> b) <-> (c <|> d)
-            border = let drawQ funct f par = uncurry (funct f) .
+        baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
+        mulkernel = (engage border >< engage id) .
+                                        split (operate p1) (operate p2)      
+        engage f x = let (a,(b,(c,d))) = operate f x 
+                     in (a <|> b) <-> (c <|> d)
+        border = let drawQ funct f par = uncurry (funct f) .
                                 split par (funct f 1)
-                     in drawQ mapCol (const true) ncols . 
+                 in drawQ mapCol (const true) ncols . 
                                 drawQ mapRow (const true) nrows
 
 \end{code}
@@ -1334,21 +1336,25 @@ generatePTree =  modifyPTree . anaFTree gene . toInteger
                                     split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) .
                                                                         split (const (valor x)) id )
 
-drawPTree = cataFTree gene
-    where   gene = either (singl . square) 
+drawPTree = cataFTree gene where
+        gene = either (singl . square) 
                                 ( cons . ( square >< conc ) . engage)
 
-            engage = let pad x y = fmap . uncurry (.) .
+        engage = let pad x y = fmap . uncurry (.) .
                                 split (uncurry translate . split x id) (const (rotate (y 45)))
-                     in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) .
+                 in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) .
                                                                                      split (id><p1) (id><p2))
 \end{code}
 
 \subsection*{Problema 5}
 
 \begin{code}
-singletonbag = undefined
-muB = undefined
+
+singletonbag = B. singl . split id (const 1)
+
+muB = B. concatMap gene . unB
+    where gene = let special f = map (id >< f) . unB
+                 in Cp.ap . swap .(id >< special.(*))
 dist = undefined
 \end{code}
 

@@ -1315,8 +1315,8 @@ baseFTree f o g = o -|- (f >< (g >< g))
 instance Bifunctor FTree where
     bimap f g =  cataFTree ( inFTree . baseFTree f g id)
 
-generatePTree =  modifyPTree . anaFTree gene
-        where gene = ( Cp.zero -|- split succ (split id id) ) . outNat
+generatePTree =  modifyPTree . anaFTree gene . toInteger
+        where gene = ( (Cp.zero) -|- split succ (split id id) ) . outNat
               
               modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) .
                                         (split (const bimap) (dup.submax) >< id ) . dup

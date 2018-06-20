@@ -1030,10 +1030,12 @@ cr3 f a b c = f (a,(b,c))
 uncr4 f (a,(b,(c,d))) = f a b c d
 cr4 f a b c d = f (a,(b,(c,d)))
 
+operate g = g >< (g >< (g >< g))
+
 inQTree = either (uncr3 Cell) (uncr4 Block)
 outQTree (Cell a b c) = cr3 i1 a b c
 outQTree (Block a b c d) = cr4 i2 a b c d
-baseQTree f g = (f >< id) -|- (g >< (g >< (g >< g)))
+baseQTree f g = (f >< id) -|- operate g
 recQTree g = baseQTree id g
 cataQTree g = g . recQTree (cataQTree g) . outQTree
 anaQTree g = inQTree . recQTree (anaQTree g) . g
@@ -1048,24 +1050,30 @@ scaleQTree n = cataQTree (inQTree . ((scl n) -|- id))
 invertQTree = fmap inv 
     where inv (PixelRGBA8 a b c d) = let minus = uncurry (-) . (split (const 255) id) in PixelRGBA8 (minus a) (minus b) (minus c) d
 
-compressQTree 0 qt = qt 
-compressQTree 1 qt = qt
-compressQTree n qt = anaQTree gene $ compressQTree (n-1) qt
+compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
-gene = either i1 verifica . outQTree
+                        compressUnit = let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
+                                       in anaQTree (either i1 g . outQTree) 
+                        mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
+                        evCell x    = let (a,(b,(c,d))) = operate isCell x 
+                                      in a && b && c && d 
+                                            where isCell Cell{} = True
+                                                  isCell _ = False
 
-verifica = cond evCell (i1 . conv) i2
 
-evCell (a,(b,(c,d))) = and $ map isCell [a,b,c,d]
 
-conv = inct .(id><(p2.p2))
+outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
+                                cataQTree (either (baser f) mulkernel) where
 
-inct ((Cell a1 b1 c1),(Cell a2 b2 c2)) = (a1,((b1+b2),(c1+c2)))
-
-isCell (Cell _ _ _) = True
-isCell _ = False
-
-outlineQTree = undefined
+            baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
+            mulkernel = (engage border >< engage id) .
+                                                split (operate p1) (operate p2)      
+            engage f x = let (a,(b,(c,d))) = operate f x 
+                         in (a <|> b) <-> (c <|> d)
+            border = let drawQ funct f par = uncurry (funct f) .
+                                split par (funct f 1)
+                     in drawQ mapCol (const true) ncols . 
+                                drawQ mapRow (const true) nrows
 
 \end{code}
 

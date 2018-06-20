@@ -172,6 +172,7 @@ import Nat
 import Probability hiding (cond)
 import BMP
 import LTree
+import BTree
 
 import Data.List
 import Data.Typeable
@@ -983,31 +984,38 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 
+segment r f b p = cataList (either b (segv r f p))
+    where segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
+                                   | p > r h      = (e,(s,h:l))
+                                   | otherwise    = f h e (s,l)
+
 allTransactions = cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1) (either nil p2 ))
 
-ledger = either nil bind . outList . changes . allTransactions
+ledger = hyloBTree preord account . cataList changes . allTransactions
 
-changes = cataList (either nil (cons.(id><cons).assocr.(aux><id)))
-    where aux = split (swap.(((-1)*)><id).p2) (id><p1)
-
-bind = cons.(id><uncurry ccat).
-    split (split (p1.p1) (add.( p2 ><p1 ))) (p2.p2)
-            (split p1 (swap.partit))
-
-partit p = cataList (either (const (([],[]),0)) (segv p))
-      where segv p (h,((s,l),e))  | p1 p < p1 h  = ((h:s,l), e)
-                                  | p1 p == p1 h = ((s,l), p2 h + e)
-                                  | otherwise    = ((s,h:l), e)   
+changes = either nil (cons . (id><cons) . assocr . 
+                    (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
+    
+account = either (i1.(!)) 
+                    (i2 . condense . split p1 (uncurry partit . (p1><id))) .
+                                    outList
+    
+condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
+    
+partit = segment p1 
+                (\ h e b -> (p2 h + e, b)) 
+                        (const (0,([],[])))  
 
 isValidMagicNr = hyloLTree (either id and) eqSep .
                             cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
 
-eqSep = either (i1.true) (cond ((False==).p2) (i1.p2) (i2.p1) . uncurry finders) . outList
-
-finders p = cataList (either (const (([],[]),True)) (segment p))
-    where segment p (h,((s,l),b)) | p < h     = ((h:s,l), b)
-                                  | p > h     = ((s,h:l), b)
-                                  | otherwise = (([],[]),False) 
+eqSep = either (i1.true) 
+            (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) 
+                    . outList
+      
+finders = segment id 
+                (const.const.const (False,([],[]))) 
+                                (const (True,([],[])))
 
 \end{code}
 
@@ -1307,27 +1315,25 @@ baseFTree f o g = o -|- (f >< (g >< g))
 instance Bifunctor FTree where
     bimap f g =  cataFTree ( inFTree . baseFTree f g id)
 
-generatePTree = anaFTree gene
-            where gene = zero -|- split succ (split id id) . outNat
+generatePTree =  modifyPTree . anaFTree gene
+        where gene = ( Cp.zero -|- split succ (split id id) ) . outNat
+              
+              modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) .
+                                        (split (const bimap) (dup.submax) >< id ) . dup
 
-drawPTree = recolherPicTree . modifyPTree
+              submax x = let valor  = either id p1 . outFTree  
+                         in  uncurry (**) . 
+                                    split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) .
+                                                                        split (const (valor x)) id )
 
-recolherPicTree :: FTree Picture Picture -> [Picture]
-recolherPicTree = cataFTree (either singl (cons . (id >< concat )))
+drawPTree = cataFTree gene
+    where   gene = either (singl . square) 
+                                ( cons . ( square >< conc ) . engage)
 
-modifyPTree :: PTree -> FTree Picture Picture
-modifyPTree = uncurry (uncurry bimap  . (dup . submax)) . dup 
-
-submax :: PTree -> Square -> Picture
-submax x = getRect . uncurry (**) . split (const golden) ( uncurry (-) . split (const (valor x)) id )
-            where golden = sqrt 2 /2
-
-valor :: PTree -> Square
-valor = either id p1 . outFTree
-
-getRect :: Square -> Picture
-getRect = uncurry rectangleSolid . dup 
-
+            engage = let pad x y = fmap . uncurry (.) .
+                                split (uncurry translate . split x id) (const (rotate (y 45)))
+                     in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) .
+                                                                                     split (id><p1) (id><p2))
 \end{code}
 
 \subsection*{Problema 5}

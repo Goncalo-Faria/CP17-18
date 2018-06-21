@@ -1352,13 +1352,14 @@ drawPTree = cataFTree gene where
 
 singletonbag = B. singl . split id (const 1)
 
+special f = map (id >< f) . unB
+
 muB = B. concatMap gene . unB
     where gene = Cp.ap . swap .(id >< special.(*))
 
-special f = map (id >< f) . unB
-dist = D . uncurry special .(split ( divide.soma.unB)  id )
-    where soma = cataList ( either (const 0) ((uncurry (+) ).( p2>< id ) ) )
-          divide a b = toFloat b / toFloat a
+dist = D . uncurry special . split (divide . soma)  id 
+    where soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 
+          divide = curry (uncurry (/) . (toFloat >< toFloat) . swap)
 
 \end{code}
 

@@ -984,28 +984,32 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 
-segment r f b p = cataList (either b (segv r f p)) where 
-    segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
-                             | p > r h      = (e,(s,h:l))
-                             | otherwise    = f h e (s,l)
+segment get eqCase stdCase pivot = cataList (either stdCase (segv get eqCase pivot)) where 
+    segv get eqCase pivot (h,(e,(s,l))) 
+        | pivot < get h      = (e,(h:s,l))
+        | pivot > get h      = (e,(s,h:l))
+        | otherwise    = eqCase h e (s,l)
 
+\end{code}
+\begin{code}
 allTransactions = cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1) (either nil p2 ))
 
-ledger = hyloBTree preord account . cataList changes . allTransactions
-
-changes = either nil (cons . (id><cons) . assocr . (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
-                    
-account = either (i1.(!)) (i2 . condense . split p1 (uncurry partit . (p1><id))) .outList
+\end{code}
+\begin{code}
+ledger = hyloBTree preord account . cataList changes . allTransactions where
+    changes = either nil (cons . (id><cons) . assocr . (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
     
-condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
+    account = either (i1.(!)) (i2 . condense . split p1 (uncurry partit . (p1><id))) .outList where
+    
+        condense = split (split (p1.p1) (uncurry (+) .(p2><p1))) (p2.p2)
 
-partit = segment p1 (\ h e b -> (p2 h + e, b)) (const (0,([],[])))  
+        partit = segment p1 (\ h e b -> (p2 h + e, b)) (const (0,([],[])))  
 
-isValidMagicNr = hyloLTree (either id and) eqSep . cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
-
-eqSep = either (i1.true) (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) . outList
-      
-finders = segment id (const.const.const (False,([],[]))) (const (True,([],[])))
+\end{code}
+\begin{code}
+isValidMagicNr = hyloLTree (either id and) eqSep . cataBlockchain (either (singl . p1) (cons. (p1 >< id))) where
+    eqSep = either (i1.true) (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) . outList where
+        finders = segment id (const.const.const (False,([],[]))) (const (True,([],[])))
 
 \end{code}
 
@@ -1014,17 +1018,17 @@ finders = segment id (const.const.const (False,([],[]))) (const (True,([],[])))
 
 \begin{code}
 
-uncr3 f (a,(b,c)) = f a b c
-cr3 f a b c = f (a,(b,c))
-
-uncr4 f (a,(b,(c,d))) = f a b c d
-cr4 f a b c d = f (a,(b,(c,d)))
-
 operate g = g >< (g >< (g >< g))
 
-inQTree = either (uncr3 Cell) (uncr4 Block)
-outQTree (Cell a b c) = cr3 i1 a b c
-outQTree (Block a b c d) = cr4 i2 a b c d
+inQTree = either (uncr3 Cell) (uncr4 Block) where 
+    uncr3 f (a,(b,c)) = f a b c
+    uncr4 f (a,(b,(c,d))) = f a b c d
+
+outQTree (Cell a b c) = cr3 i1 a b c where
+    cr3 f a b c = f (a,(b,c))
+outQTree (Block a b c d) = cr4 i2 a b c d where
+    cr4 f a b c d = f (a,(b,(c,d)))
+
 baseQTree f g = (f >< id) -|- operate g
 recQTree g = baseQTree id g
 cataQTree g = g . recQTree (cataQTree g) . outQTree
@@ -1034,17 +1038,25 @@ hyloQTree h g = cataQTree h . anaQTree g
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
 
+\end{code}
+\begin{code}
 rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where 
     mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
 
+\end{code}
+\begin{code}
 scaleQTree n = cataQTree (inQTree . ((scl n) -|- id)) where
     scl n = id >< ((n*) >< (n*))
 
+\end{code}
+\begin{code}
 invertQTree = fmap inv where
     inv (PixelRGBA8 a b c d) = 
         let minus = (255-)
         in PixelRGBA8 (minus a) (minus b) (minus c) d
 
+\end{code}
+\begin{code}
 compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
         compressUnit = 
@@ -1057,8 +1069,9 @@ compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) 
             let (a,(b,(c,d))) = operate (either true false . outQTree) x 
             in a && b && c && d 
 
-outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
-                                cataQTree (either (baser f) mulkernel) where
+\end{code}
+\begin{code}
+outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either (baser f) mulkernel) where
 
         baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
         
@@ -1320,21 +1333,21 @@ baseFTree f o g = o -|- (f >< (g >< g))
 instance Bifunctor FTree where
     bimap f g =  cataFTree ( inFTree . baseFTree f g id)
 
+\end{code}
+\begin{code}
 generatePTree =  modifyPTree . anaFTree gene . toInteger where 
     gene = ( (Cp.zero) -|- split succ (split id id) ) . outNat 
 
-    modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) .
-                                (split (const bimap) (dup.submax) >< id ) . dup
+    modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) . split (split (const bimap) (dup.submax) ) id 
 
     submax x = 
         let valor  = either id p1 . outFTree  
         in  uncurry (**) . split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) . split (const (valor x)) id )
 
-drawPTree = cataFTree gene where
-        gene = either (singl . square) 
-                                ( cons . ( square >< conc ) . engage)
-
-        engage = 
+\end{code}
+\begin{code}
+drawPTree = cataFTree (either (singl . square) ( cons . ( square >< conc ) . visualTransformation) ) where
+        visualTransformation = 
             let pad x y = fmap . uncurry (.) . split (uncurry translate . split x id) (const (rotate (y 45)))
             in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) . split (id><p1) (id><p2))
 \end{code}
@@ -1347,8 +1360,7 @@ singletonbag = B. singl . split id (const 1)
 
 special f = map (id >< f) . unB
 
-muB = B. concatMap gene . unB where 
-    gene = Cp.ap . swap .(id >< special.(*))
+muB = B. concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB 
 
 dist = D . uncurry special . split (divide . soma)  id where 
     soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 

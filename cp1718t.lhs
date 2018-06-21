@@ -1065,9 +1065,8 @@ compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) 
 
         mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
 
-        evCell x = 
-            let (a,(b,(c,d))) = operate (either true false . outQTree) x 
-            in a && b && c && d 
+        evCell = (\ (a,(b,(c,d))) -> a && b && c && d) . operate (either true false . outQTree)
+
 
 \end{code}
 \begin{code}
@@ -1077,9 +1076,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
         
         mulkernel = (engage border >< engage id) .split (operate p1) (operate p2)      
 
-        engage f x = 
-            let (a,(b,(c,d))) = operate f x 
-            in (a <|> b) <-> (c <|> d)
+        engage f = (\ (a,(b,(c,d))) -> (a <|> b) <-> (c <|> d) ) . operate f
 
         border = 
             let drawQ funct f par = uncurry (funct f) .split par (funct f 1)

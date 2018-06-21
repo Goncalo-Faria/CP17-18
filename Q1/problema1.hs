@@ -49,6 +49,7 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 
 hyloBlockchain h g = h . recBlockchain ( hyloBlockchain h g ) . g
+
 --- Funções Auxiliares --------------------------------------------------------------------------------------
 segment r f b p = cataList (either b (segv r f p))
     where segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
@@ -66,7 +67,7 @@ ledger = hyloBTree preord account . cataList changes . allTransactions
 
 changes = either nil (cons . (id><cons) . assocr . 
                     (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
-    
+
 account = either (i1.(!)) 
                     (i2 . condense . split p1 (uncurry partit . (p1><id))) .
                                     outList

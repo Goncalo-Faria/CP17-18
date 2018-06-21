@@ -51,10 +51,8 @@ compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) 
                                       in a && b && c && d 
                                             where isCell Cell{} = True
                                                   isCell _ = False
-
-bothQTree g = inQTree . recQTree (bothQTree g) . either i1 g . outQTree
-
--- bothQTree g == cataQTree (inQTree . either i1 g) == andaQTree (either i1 g . outQTree) 
+                                                  
+-- bothQTree g == cataQTree (inQTree . either i1 g) == andQTree (either i1 g . outQTree) 
 
 ----------------------- Questão E -------------------------------------------------------------------------------------------
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).

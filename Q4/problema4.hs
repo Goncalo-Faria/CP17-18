@@ -48,7 +48,6 @@ baseFTree f o g = o -|- (f >< (g >< g))
 
 --Funcoes auxiliares---
 
-
 instance BiFunctor FTree where
     bmap f g =  cataFTree ( inFTree . baseFTree f g id)
 

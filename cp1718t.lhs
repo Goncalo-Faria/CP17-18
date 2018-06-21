@@ -1353,9 +1353,13 @@ drawPTree = cataFTree gene where
 singletonbag = B. singl . split id (const 1)
 
 muB = B. concatMap gene . unB
-    where gene = let special f = map (id >< f) . unB
-                 in Cp.ap . swap .(id >< special.(*))
-dist = undefined
+    where gene = Cp.ap . swap .(id >< special.(*))
+
+special f = map (id >< f) . unB
+dist = D . uncurry special .(split ( divide.soma.unB)  id )
+    where soma = cataList ( either (const 0) ((uncurry (+) ).( p2>< id ) ) )
+          divide a b = toFloat b / toFloat a
+
 \end{code}
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}

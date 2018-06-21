@@ -984,11 +984,11 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 
-segment get eqCase stdCase pivot = cataList (either stdCase (segv get eqCase pivot)) where 
+segment get eqCase stdVal pivot = cataList (either (const (stdVal,([],[]))) (segv get eqCase pivot)) where 
     segv get eqCase pivot (h,(e,(s,l))) 
-        | pivot < get h      = (e,(h:s,l))
-        | pivot > get h      = (e,(s,h:l))
-        | otherwise    = eqCase h e (s,l)
+        | pivot < get h  = (e,(h:s,l))
+        | pivot > get h  = (e,(s,h:l))
+        | otherwise      = eqCase h e (s,l)
 
 \end{code}
 \begin{code}
@@ -1003,13 +1003,13 @@ ledger = hyloBTree preord account . cataList changes . allTransactions where
     
         condense = split (split (p1.p1) (uncurry (+) .(p2><p1))) (p2.p2)
 
-        partit = segment p1 (\ h e b -> (p2 h + e, b)) (const (0,([],[])))  
+        partit = segment p1 (\ h e b -> (p2 h + e, b)) 0  
 
 \end{code}
 \begin{code}
 isValidMagicNr = hyloLTree (either id and) eqSep . cataBlockchain (either (singl . p1) (cons. (p1 >< id))) where
     eqSep = either (i1.true) (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) . outList where
-        finders = segment id (const.const.const (False,([],[]))) (const (True,([],[])))
+        finders = segment id (const.const.const (False,([],[]))) True
 
 \end{code}
 

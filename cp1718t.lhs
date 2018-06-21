@@ -984,40 +984,28 @@ cataBlockchain g = g . recBlockchain (cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain (anaBlockchain g) . g
 hyloBlockchain h g = cataBlockchain h . anaBlockchain g
 
-segment r f b p = cataList (either b (segv r f p))
-    where segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
-                                   | p > r h      = (e,(s,h:l))
-                                   | otherwise    = f h e (s,l)
+segment r f b p = cataList (either b (segv r f p)) where 
+    segv r f p (h,(e,(s,l))) | p < r h      = (e,(h:s,l))
+                             | p > r h      = (e,(s,h:l))
+                             | otherwise    = f h e (s,l)
 
 allTransactions = cataBlockchain ( uncurry ccat . split (p2 . p2 . either id p1) (either nil p2 ))
 
 ledger = hyloBTree preord account . cataList changes . allTransactions
 
-changes = either nil (cons . (id><cons) . assocr . 
-                    (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
+changes = either nil (cons . (id><cons) . assocr . (split ( swap . (negate><id) . p2 ) (id><p1) >< id ) )
                     
-account :: (Ord a , Num b) => [(a, b)]-> Either () ((a, b), ([(a, b)], [(a, b)]))    
-account = either (i1.(!)) 
-                    (i2 . condense . split p1 (uncurry partit . (p1><id))) .
-                                    outList
+account = either (i1.(!)) (i2 . condense . split p1 (uncurry partit . (p1><id))) .outList
     
 condense ((el,num1),(num2,c)) = ((el,num1+num2),c)
 
-partit :: (Ord a , Num b) => a -> [(a,b)] -> (b, ([(a,b)], [(a,b)]))    
-partit = segment p1 
-                (\ h e b -> (p2 h + e, b)) 
-                        (const (0,([],[])))  
+partit = segment p1 (\ h e b -> (p2 h + e, b)) (const (0,([],[])))  
 
-isValidMagicNr = hyloLTree (either id and) eqSep .
-                            cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
+isValidMagicNr = hyloLTree (either id and) eqSep . cataBlockchain (either (singl . p1) (cons. (p1 >< id)))
 
-eqSep = either (i1.true) 
-            (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) 
-                    . outList
+eqSep = either (i1.true) (cond ((False==).p1) (i1.p1) (i2.p2) . uncurry finders) . outList
       
-finders = segment id 
-                (const.const.const (False,([],[]))) 
-                                (const (True,([],[])))
+finders = segment id (const.const.const (False,([],[]))) (const (True,([],[])))
 
 \end{code}
 
@@ -1046,36 +1034,43 @@ hyloQTree h g = cataQTree h . anaQTree g
 instance Functor QTree where
     fmap f = cataQTree (inQTree . baseQTree f id)
 
-rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
-scaleQTree n = cataQTree (inQTree . ((scl n) -|- id)) 
-    where scl n = id >< ((n*) >< (n*))
-invertQTree = fmap inv 
-    where inv (PixelRGBA8 a b c d) = let minus = uncurry (-) . (split (const 255) id) in PixelRGBA8 (minus a) (minus b) (minus c) d
+rotateQTree = cataQTree (inQTree . ((id >< swap) -|- mySwap)) where 
+    mySwap (a,(b,(c,d))) = (c,(a,(d,b)))
+
+scaleQTree n = cataQTree (inQTree . ((scl n) -|- id)) where
+    scl n = id >< ((n*) >< (n*))
+
+invertQTree = fmap inv where
+    inv (PixelRGBA8 a b c d) = 
+        let minus = (255-)
+        in PixelRGBA8 (minus a) (minus b) (minus c) d
 
 compressQTree = flip (cataNat.uncurry either. split const (const compressUnit)) where
 
-        compressUnit = let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
-                       in anaQTree (either i1 g . outQTree) 
+        compressUnit = 
+            let g = cond evCell (i1 . mjoin .(id><(p2.p2))) i2
+            in anaQTree (either i1 g . outQTree) 
+
         mjoin (Cell a1 b1 c1,Cell a2 b2 c2) = (a1,(b1+b2,c1+c2))
-        evCell x     = let (a,(b,(c,d))) = operate isCell x 
-                       in a && b && c && d 
-                                where isCell Cell{} = True
-                                      isCell _ = False
 
-
+        evCell x = 
+            let (a,(b,(c,d))) = operate (either true false . outQTree) x 
+            in a && b && c && d 
 
 outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).
                                 cataQTree (either (baser f) mulkernel) where
 
         baser f (k,(i,j)) = (matrix j i false , matrix j i (const (f k)))
-        mulkernel = (engage border >< engage id) .
-                                        split (operate p1) (operate p2)      
-        engage f x = let (a,(b,(c,d))) = operate f x 
-                     in (a <|> b) <-> (c <|> d)
-        border = let drawQ funct f par = uncurry (funct f) .
-                                split par (funct f 1)
-                 in drawQ mapCol (const true) ncols . 
-                                drawQ mapRow (const true) nrows
+        
+        mulkernel = (engage border >< engage id) .split (operate p1) (operate p2)      
+
+        engage f x = 
+            let (a,(b,(c,d))) = operate f x 
+            in (a <|> b) <-> (c <|> d)
+
+        border = 
+            let drawQ funct f par = uncurry (funct f) .split par (funct f 1)
+            in drawQ mapCol (const true) ncols . drawQ mapRow (const true) nrows
 
 \end{code}
 
@@ -1304,9 +1299,9 @@ for ((split mul (succ . p2)) >< (split mul (succ . p2))) ((1,(succ k)),(1,1))
 
 \begin{code}
 base k = (1, k+1, 1, 1)
-loop (a,b,c,d) = flat (curry p a b) (curry p c d)
-    where flat (a,b) (c,d) = (a,b,c,d)
-          p = split mul (succ . p2)
+loop (a,b,c,d) = flat (curry p a b) (curry p c d) where 
+    flat (a,b) (c,d) = (a,b,c,d)
+    p = split mul (succ . p2)
 \end{code}
 
 \subsection*{Problema 4}
@@ -1325,25 +1320,23 @@ baseFTree f o g = o -|- (f >< (g >< g))
 instance Bifunctor FTree where
     bimap f g =  cataFTree ( inFTree . baseFTree f g id)
 
-generatePTree =  modifyPTree . anaFTree gene . toInteger
-        where gene = ( (Cp.zero) -|- split succ (split id id) ) . outNat
-              
-              modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) .
-                                        (split (const bimap) (dup.submax) >< id ) . dup
+generatePTree =  modifyPTree . anaFTree gene . toInteger where 
+    gene = ( (Cp.zero) -|- split succ (split id id) ) . outNat 
 
-              submax x = let valor  = either id p1 . outFTree  
-                         in  uncurry (**) . 
-                                    split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) .
-                                                                        split (const (valor x)) id )
+    modifyPTree = Cp.ap.( (Cp.ap.(Cp.ap><id).assocl) >< id ) .
+                                (split (const bimap) (dup.submax) >< id ) . dup
+
+    submax x = 
+        let valor  = either id p1 . outFTree  
+        in  uncurry (**) . split (const (sqrt 2 / 2)) ( fromIntegral . uncurry (-) . split (const (valor x)) id )
 
 drawPTree = cataFTree gene where
         gene = either (singl . square) 
                                 ( cons . ( square >< conc ) . engage)
 
-        engage = let pad x y = fmap . uncurry (.) .
-                                split (uncurry translate . split x id) (const (rotate (y 45)))
-                 in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) .
-                                                                                     split (id><p1) (id><p2))
+        engage = 
+            let pad x y = fmap . uncurry (.) . split (uncurry translate . split x id) (const (rotate (y 45)))
+            in split p1 ((uncurry (pad (negate.(/2)) negate) >< uncurry (pad (/2) id)) . split (id><p1) (id><p2))
 \end{code}
 
 \subsection*{Problema 5}
@@ -1354,12 +1347,12 @@ singletonbag = B. singl . split id (const 1)
 
 special f = map (id >< f) . unB
 
-muB = B. concatMap gene . unB
-    where gene = Cp.ap . swap .(id >< special.(*))
+muB = B. concatMap gene . unB where 
+    gene = Cp.ap . swap .(id >< special.(*))
 
-dist = D . uncurry special . split (divide . soma)  id 
-    where soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 
-          divide = curry (uncurry (/) . (toFloat >< toFloat) . swap)
+dist = D . uncurry special . split (divide . soma)  id where 
+    soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 
+    divide = curry (uncurry (/) . (toFloat >< toFloat) . swap)
 
 \end{code}
 

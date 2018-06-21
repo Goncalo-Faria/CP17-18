@@ -52,7 +52,7 @@ baseFTree f o g = o -|- (f >< (g >< g))
 instance BiFunctor FTree where
     bmap f g =  cataFTree ( inFTree . baseFTree f g id)
 
-generatePTree =  modifyPTree . anaFTree gene
+generatePTree =  modifyPTree . anaFTree gene . toInteger
         where gene = ( zero -|- split succ (split id id) ) . outNat
               
               modifyPTree = ap.( (ap.(ap><id).assocl) >< id ) .

@@ -1086,226 +1086,43 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 
 \subsection*{Problema 3}
 
+\begin{eqnarray*}
+\start
 |lcbr(
     f k 0 = 1
 )(
-    f k (d+1) = (d + k + 1) * f k d
+    f k (d+1) = (d+k+1) * f k d
 )|
 %
-\just\equiv{ universal property }
+\just\equiv{ zero = (const 0); one = (const 1); Def-comp (74); (l k) d = d+k+1 }
 %
 |lcbr(
     (f k) . zero = one
 )(
-    (f k) . (succ d) =  mul (f k) (l k)
+    (f k) . (succ d) =  mul ((f k) d, (l k) d)
 )|
 %
-\just\equiv{ universal property }
+\just\equiv{ Def-split (78); Igualdade extensional (73) }
 %
 |lcbr(
     (f k) . zero = one
 )(
-    (f k) . (succ d) = mul . (split (f k) (l k))
+    (f k) . succ = mul . (split (f k) (l k))
 )|
 %
-\just\equiv{ universal property }
+\just\equiv{ Eq-+ (27) }
 %
-either ((f k) . zero) ((f k) . succ) = either one (mul . split (f k) (l k))
+|either ((f k) . zero) ((f k) . succ) = either one (mul . (split (f k) (l k)))|
 %
-\just\equiv{}
+\just\equiv{ Fusão-+ (20); Absorção-+ (22); Natural-id (1) }
 %
-(f k) . (either zero succ) = (either one mul) . (id -|- split (f k) (l k))
+|(f k) . (either zero succ) = (either one mul) . (id + split (f k) (l k))|
 %
-\just\equiv{}
+\just\equiv{ (either zero succ) = inNat; F(f) = id + f }
 %
-(f k) . in = (either one mul) . (F (split (f k) (l k)))
-
-
-|lcbr(
-    l k 0 = k+1
-)(
-    l k (d+1) = l k d + 1
-)|
-%
-\just\equiv{ universal property }
-%
-|lcbr(
-    (l k) . zero = succ . (const k)
-)(
-    l k . (succ d) =  succ . (l k d)
-)|
-%
-\just\equiv{ universal property }
-%
-|lcbr(
-    (l k) . zero = const (succ k)
-)(
-    (l k) . succ = succ . p2 . (split (f k) (l k))
-)|
-%
-\just\equiv{ universal property }
-%
-|either ((l k) . zero) ((l k) . succ) = either (const (succ k)) (succ . p2 . split (f k) (l k))|
-%
-\just\equiv{}
-%
-|(l k) . (either zero succ) = (either (const (succ k)) (succ . p2)) . (id -|- split (f k) (l k))|
-%
-\just\equiv{}
-%
-|(l k) . in = (either (const (succ k) (succ . p2)) . (F (split (f k) (l k)))|
-
-
-|lcbr(
-    (f k) . in = (either one mul) . (F . (split (f k) (l k)))
-)(
-    (l k) . in = (either (const (succ k)) (succ . p2)) . (F . (split (f k) (l k)))
-)|
-%
-\just\equiv{ Fokkinga (50) }
-%
-|split (f k) (l k) = cata (split (either one mul) (either (const (succ k)) (succ .p2)))|
-%
-\just\equiv{ Lei da troca }
-%
-|split (f k) (l k) = cata (either (split one (const (succ k))) (split mul (succ .p2)))|
-%
-\just\equiv{}
-%
-|split (f k) (l k) = cata (either (const (1, succ k)) (split mul (succ . p2)))|
-
-
-|lcbr(
-    g 0 = 1
-)(
-    g (d+1) = (d+1) * (g d)
-)|
-%
-\just\equiv{}
-%
-|lcbr(
-    g . zero = one
-)(
-    g . (succ d) = mul (g d, s d)
-)|
-%
-\just\equiv{}
-%
-|lcbr(
-    g . zero = one
-)(
-    g . succ = mul . (split g s)
-)|
-%
-\just\equiv{}
-%
-|either (g . zero) (g . succ) = either one (mul . (split g s))|
-%
-\just\equiv{}
-%
-|g . (either zero succ) = (either one mul) . (id -|- (split g s))|
-%
-\just\equiv{}
-%
-|g . in = (either one mul) . (F (split g s))|
-
-
-|lcbr(
-    s 0 = 1
-)(
-    s (d+1) = s d + 1
-)|
-%
-\just\equiv{}
-%
-|lcbr(
-    s . zero = one
-)(
-    s . (succ d) = succ (s d)
-)|
-%
-\just\equiv{}
-%
-|lcbr(
-    s . zero = one
-)(
-    s . succ = succ . s
-)|
-%
-\just\equiv{}
-%
-|lcbr(
-    s . zero = one
-)(
-    s . succ = succ . p2 . (split g s)
-)|
-%
-\just\equiv{}
-%
-|either (s . zero) (s . succ) = either one (succ . p2 . (split g s))|
-%
-\just\equiv{}
-%
-|s . (either zero succ) = (either one (succ . p2)) . (id -|- (split g s))|
-%
-\just\equiv{}
-%
-|s . in = (either one (succ . p2)) . (F (split g s))|
-
-
-|lcbr(
-    g . in = (either one mul) . (F . (split g s))
-)(
-    s . in = (either one (succ . p2)) . (F . (split g s))
-)|
-%
-\just\equiv{ Fokkinga (50) }
-%
-|split g s = cata (split (either one mul) (either one (succ .p2)))|
-%
-\just\equiv{ Lei da troca }
-%
-|split g s = cata (either (split one one) (split mul (succ .p2)))|
-%
-\just\equiv{}
-%
-|split g s = cata (either (const (1,1)) (split mul (succ . p2)))|
-
-
-|split (cata (either (const (1,1)) (split mul (succ . p2)))) (cata (either (const (1, succ k)) (split mul (succ . p2))))|
-%
-\just\equiv{}
-%
-|split (cata (either (split one one) (split mul (succ . p2)))) (cata (either (split one (const (succ k))) (split mul (succ . p2))))|
-%
-\just\equiv{ Lei de banana-split (51) }
-%
-|cata (((either (split one one) (split mul (succ . p2))) >< (either (split one (const (succ k))) (split mul (succ . p2)))) . (split (id -|- p1) (id -|- p2)))|
-%
-\just\equiv{ (11) }
-%
-|cata (split ((either (split one one) (split mul (succ . p2))) . (id -|- p1)) ((either (split one (const (succ k))) (split mul (succ . p2))) . (id -|- p2)))|
-%
-\just\equiv{ (22) }
-%
-|cata (split (either (split one one) ((split mul (succ . p2)) . p1)) (either (split one (const (succ k))) ((split mul (succ . p2)) . p2)))|
-%
-\just\equiv{}
-%
-|cata (either (split (split one one) (split one (const (succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
-%
-\just\equiv{}
-%
-|cata (either (const ((1,1),(1,(succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
-%
-\just\equiv{}
-%
-for (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)) . p2)) ((1,(succ k)),(1,1))
-%
-\just\equiv{}
-%
-for ((split mul (succ . p2)) >< (split mul (succ . p2))) ((1,(succ k)),(1,1))
-
+|(f k) . in = (either one mul) . (F (split (f k) (l k)))|
+\qed
+\end{eqnarray*}
 
 \begin{code}
 base k = (1, k+1, 1, 1)

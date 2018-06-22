@@ -1158,7 +1158,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 \just\equiv{ (either zero succ) = inNat; F(f) = id + f }
 %
-|(l k) . in = (either (const (succ k) (succ . p2)) . (F (split (f k) (l k)))|
+|(l k) . in = either (const (succ k)) (succ . p2) . (F (split (f k) (l k)))|
 \qed
 \end{eqnarray*}
 

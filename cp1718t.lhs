@@ -1084,6 +1084,8 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 
 \end{code}
 
+\pagebreak
+
 \subsection*{Problema 3}
 
 \begin{eqnarray*}
@@ -1120,7 +1122,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 \just\equiv{ (either zero succ) = inNat; F(f) = id + f }
 %
-|(f k) . in = (either one mul) . (F (split (f k) (l k)))|
+|(f k) . in = (either one mul) . F (split (f k) (l k))|
 \qed
 \end{eqnarray*}
 
@@ -1145,7 +1147,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 |lcbr(
     (l k) . zero = const (succ k)
 )(
-    (l k) . succ = succ . p2 . (split (f k) (l k))
+    (l k) . succ = succ . p2 . split (f k) (l k)
 )|
 %
 \just\equiv{ Eq-+ (27) }
@@ -1158,29 +1160,29 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 \just\equiv{ (either zero succ) = inNat; F(f) = id + f }
 %
-|(l k) . in = either (const (succ k)) (succ . p2) . (F (split (f k) (l k)))|
+|(l k) . in = either (const (succ k)) (succ . p2) . F (split (f k) (l k))|
 \qed
 \end{eqnarray*}
 
 \begin{eqnarray*}
 \start
 |lcbr(
-    (f k) . in = (either one mul) . (F . (split (f k) (l k)))
+    (f k) . in = (either one mul) . F (split (f k) (l k))
 )(
-    (l k) . in = (either (const (succ k)) (succ . p2)) . (F . (split (f k) (l k)))
+    (l k) . in = (either (const (succ k)) (succ . p2)) . F (split (f k) (l k))
 )|
 %
 \just\equiv{ Fokkinga (50) }
 %
-|split (f k) (l k) = cata (split (either one mul) (either (const (succ k)) (succ .p2)))|
+|split (f k) (l k) = cataNat (split (either one mul) (either (const (succ k)) (succ .p2)))|
 %
 \just\equiv{ Lei da troca (28) }
 %
-|split (f k) (l k) = cata (either (split one (const (succ k))) (split mul (succ .p2)))|
+|split (f k) (l k) =  cataNat (either (split one (const (succ k))) (split mul (succ .p2)))|
 %
 \just\equiv{ (split (const a) (const b)) = const (a,b) }
 %
-|split (f k) (l k) = cata (either (const (1, succ k)) (split mul (succ . p2)))|
+|split (f k) (l k) = cataNat (either (const (1, succ k)) (split mul (succ . p2)))|
 \qed
 \end{eqnarray*}
 
@@ -1195,9 +1197,9 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 \just\equiv{ zero = (const 0); one = (const 1); Def-comp (74); s d = d+1 }
 %
 |lcbr(
-    g . zero = one
+    g . zero d = one d
 )(
-    g . (succ d) = mul (g d, s d)
+    g . succ d = mul (g d, s d)
 )|
 %
 \just\equiv{ Igualdade extensional (73); Def-split (78) }
@@ -1205,7 +1207,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 |lcbr(
     g . zero = one
 )(
-    g . succ = mul . (split g s)
+    g . succ = mul . split g s
 )|
 %
 \just\equiv{ Eq-+ (27) }
@@ -1214,69 +1216,109 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 \just\equiv{ Fusão-+ (20); Absorção-+ (22); Natural-id (1) }
 %
-|g . (either zero succ) = (either one mul) . (id + (split g s))|
+|g . either zero succ = either one mul . (id + split g s )|
 %
 \just\equiv{ (either zero succ) = inNat; F(f) = id + f }
 %
-|g . in = (either one mul) . (F (split g s))|
+|g . in = either one mul . F (split g s)|
 \qed
 \end{eqnarray*}
 
 \begin{eqnarray*}
 \start
 |lcbr(
-    g . in = (either one mul) . (F . (split g s))
+    s 0 = 1
 )(
-    s . in = (either one (succ . p2)) . (F . (split g s))
+    s (d+1) = s d + 1
+)|
+%
+\just\equiv{ Def-comp (74) }
+%
+|lcbr(
+    s . zero d = one d
+)(
+    s . succ d = succ (s d)
+)|
+%
+\just\equiv{ Igualdade extensional (73)}
+%
+|lcbr(
+    s . zero = one
+)(
+    s . succ = succ . s
+)|
+%
+\just\equiv{ Cancelamento-x (7) }
+%
+|lcbr(
+    s . zero = one
+)(
+    s . succ = succ . p2 . (split g s)
+)|
+%
+\just\equiv{ Eq-+ (27) }
+%
+|   s . either zero succ  = either one (succ. p2 . split g s ) |
+%
+\just\equiv{ Eq-+ (27) }
+%
+|s . in  = either one (succ . p2) . F (split g s) |
+\qed
+\end{eqnarray*}
+
+\pagebreak
+
+\begin{eqnarray*}
+\start
+|lcbr(
+    g . in = either one mul . (F (split g s))
+)(
+    s . in = either one (succ . p2) . (F (split g s))
 )|
 %
 \just\equiv{ Fokkinga (50) }
 %
-|split g s = cata (split (either one mul) (either one (succ .p2)))|
+|split g s = cataNat (split (either one mul) (either one (succ .p2)))|
 %
 \just\equiv{ Lei da troca (28) }
 %
-|split g s = cata (either (split one one) (split mul (succ .p2)))|
+|split g s = cataNat (either (split one one) (split mul (succ .p2)))|
 %
 \just\equiv{ (split (const a) (const b)) = const (a,b) }
 %
-|split g s = cata (either (const (1,1)) (split mul (succ . p2)))|
+|split g s = cataNat (either (const (1,1)) (split mul (succ . p2)))|
 \qed
 \end{eqnarray*}
 
 \begin{eqnarray*}
 \start
-|split (cata (either (const (1,1)) (split mul (succ . p2)))) (cata (either (const (1, succ k)) (split mul (succ . p2))))|
+|split (cataNat (either (split one one) (split mul (succ . p2)))) (cataNat (either (split one (const (succ k))) (split mul (succ . p2))))|
 %
-\just\equiv{ (split (const a) (const b)) = const (a,b) }
+\just={ Lei de banana-split (51) }
 %
-|split (cata (either (split one one) (split mul (succ . p2)))) (cata (either (split one (const (succ k))) (split mul (succ . p2))))|
+|cataNat (((either (split one one) (split mul (succ . p2))) >< (either (split one (const (succ k))) (split mul (succ . p2)))) . (split (id + p1) (id + p2)))|
 %
-\just\equiv{ Lei de banana-split (51) }
+\just={ Absorção-x (11) }
 %
-|cata (((either (split one one) (split mul (succ . p2))) >< (either (split one (const (succ k))) (split mul (succ . p2)))) . (split (id + p1) (id + p2)))|
+|cataNat (split ((either (split one one) (split mul (succ . p2))) . (id + p1)) ((either (split one (const (succ k))) (split mul (succ . p2))) . (id + p2)))|
 %
-\just\equiv{ Absorção-x (11) }
+\just={ Absorção-+ (22); Natural-id (1) }
 %
-|cata (split ((either (split one one) (split mul (succ . p2))) . (id + p1)) ((either (split one (const (succ k))) (split mul (succ . p2))) . (id + p2)))|
+|cataNat (split (either (split one one) ((split mul (succ . p2)) . p1)) (either (split one (const (succ k))) ((split mul (succ . p2)) . p2)))|
 %
-\just\equiv{ Absorção-+ (22); Natural-id (1) }
+\just={ Lei da troca (28) }
 %
-|cata (split (either (split one one) ((split mul (succ . p2)) . p1)) (either (split one (const (succ k))) ((split mul (succ . p2)) . p2)))|
+|cataNat (either (split (split one one) (split one (const (succ k)))) (( split mul (succ . p2)) >< (split mul (succ . p2)) )))|
 %
-\just\equiv{ Lei da troca (28) }
+\just={ (split (const a) (const b)) = const (a,b) }
 %
-|cata (either (split (split one one) (split one (const (succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
+|cataNat (either (const ((1,1),(1,(succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
 %
-\just\equiv{ (split (const a) (const b)) = const (a,b) }
-%
-|cata (either (const ((1,1),(1,(succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
-%
-\just\equiv{ for b i = cata (either (const i) b) }
+\just={ for b i = cataNat (either (const i) b) }
 %
 for (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)) . p2)) ((1,(succ k)),(1,1))
 %
-\just\equiv{ Def-x (10) }
+\just={ Def-x (10) }
 %
 for ((split mul (succ . p2)) >< (split mul (succ . p2))) ((1,(succ k)),(1,1))
 \qed

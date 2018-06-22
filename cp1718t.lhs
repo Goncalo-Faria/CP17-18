@@ -1402,7 +1402,7 @@ special f = map (id >< f) . unB
 muB = B . concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB
 
 dist = D . uncurry special . split (divide . soma)  id where 
-    soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 
+    soma = cataList (either (const 0) ( uncurry (+) .(p2><id))) . unB 
     divide = curry (uncurry (/) . (toFloat >< toFloat) . swap)
 
 \end{code}

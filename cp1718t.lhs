@@ -1292,27 +1292,27 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 
 \begin{eqnarray*}
 \start
-|split (cataNat (either (split one one) (split mul (succ . p2)))) (cataNat (either (split one (const (succ k))) (split mul (succ . p2))))|
+|split (cataNat (either (split one (const (succ k))) (split mul (succ . p2)))) (cataNat (either (split one one) (split mul (succ . p2))))|
 %
 \just={ Lei de banana-split (51) }
 %
-|cataNat (((either (split one one) (split mul (succ . p2))) >< (either (split one (const (succ k))) (split mul (succ . p2)))) . (split (id + p1) (id + p2)))|
+|cataNat (((either (split one (const (succ k))) (split mul (succ . p2))) >< (either (split one one) (split mul (succ . p2)))) . (split (id + p1) (id + p2)))|
 %
 \just={ Absorção-x (11) }
 %
-|cataNat (split ((either (split one one) (split mul (succ . p2))) . (id + p1)) ((either (split one (const (succ k))) (split mul (succ . p2))) . (id + p2)))|
+|cataNat (split ((either (split one (const (succ k))) (split mul (succ . p2))) . (id + p1)) ((either (split one one) (split mul (succ . p2))) . (id + p2)))|
 %
 \just={ Absorção-+ (22); Natural-id (1) }
 %
-|cataNat (split (either (split one one) ((split mul (succ . p2)) . p1)) (either (split one (const (succ k))) ((split mul (succ . p2)) . p2)))|
+|cataNat (split (either (split one (const (succ k))) ((split mul (succ . p2)) . p1)) (either (split one one) ((split mul (succ . p2)) . p2)))|
 %
 \just={ Lei da troca (28) }
 %
-|cataNat (either (split (split one one) (split one (const (succ k)))) (( split mul (succ . p2)) >< (split mul (succ . p2)) )))|
+|cataNat (either (split (split one (const (succ k))) (split one one)) (( split mul (succ . p2)) >< (split mul (succ . p2)) )))|
 %
 \just={ (split (const a) (const b)) = const (a,b) }
 %
-|cataNat (either (const ((1,1),(1,(succ k)))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
+|cataNat (either (const ((1,(succ k)),(1,1))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
 %
 \just={ for b i = cataNat (either (const i) b) }
 %

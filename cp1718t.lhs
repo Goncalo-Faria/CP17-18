@@ -1336,22 +1336,21 @@ Com a ajuda do isomorfismo em baixo.
     |A >< A >< A >< A|
 &
     |(A >< A) >< (A >< A)|
-           \ar[l]_-{| uncurry (flat id)|}
+           \ar[l]_-{| flat |}
 &
     |A >< A >< A >< A|
            \ar[l]_-{| unflat |}
 }
 \end{eqnarray*}
 
-Onde unflat está definido como:
-\begin{eqnarray*}
-unflat (a,b,c,d) = ((a,b),(c,d))
-\end{eqnarray*}
+Para flat e unflat definidos em baixo.
+
 
 \begin{code}
 base k = (1, k+1, 1, 1)
-loop (a,b,c,d) = flat (curry p a b) (curry p c d) where 
-    flat (a,b) (c,d) = (a,b,c,d)
+loop = flat . (p><p) . unflat where 
+    flat ((a,b),(c,d)) = (a,b,c,d)
+    unflat (a,b,c,d) = ((a,b),(c,d))
     p = split mul (succ . p2)
 \end{code}
 
@@ -1398,7 +1397,7 @@ singletonbag = B. singl . split id (const 1)
 
 special f = map (id >< f) . unB
 
-muB = B . concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB 0
+muB = B . concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB
 
 dist = D . uncurry special . split (divide . soma)  id where 
     soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 

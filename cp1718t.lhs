@@ -1292,7 +1292,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 
 \begin{eqnarray*}
 \start
-|split (cataNat (either (split one (const (succ k))) (split mul (succ . p2)))) (cataNat (either (split one one) (split mul (succ . p2))))|
+|for loop (base k) = split (cataNat (either (split one (const (succ k))) (split mul (succ . p2)))) (cataNat (either (split one one) (split mul (succ . p2))))|
 %
 \just={ Lei de banana-split (51) }
 %
@@ -1308,19 +1308,15 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 \just={ Lei da troca (28) }
 %
-|cataNat (either (split (split one (const (succ k))) (split one one)) (( split mul (succ . p2)) >< (split mul (succ . p2)) )))|
+|cataNat (either (split (split one (const (succ k))) (split one one)) (split mul (succ . p2) >< split mul (succ . p2) ) )|
 %
 \just={ (split (const a) (const b)) = const (a,b) }
 %
-|cataNat (either (const ((1,(succ k)),(1,1))) (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)). p2)))|
+|cataNat (either (const ((1,k+1),(1,1))) (split mul (succ . p2) >< split mul (succ . p2)))|
 %
 \just={ for b i = cataNat (either (const i) b) }
 %
-for (split ((split mul (succ . p2)) . p1) ((split mul (succ . p2)) . p2)) ((1,(succ k)),(1,1))
-%
-\just={ Def-x (10) }
-%
-for ((split mul (succ . p2)) >< (split mul (succ . p2))) ((1,(succ k)),(1,1))
+|for (split mul (succ . p2) >< split mul (succ . p2)) ((1,k+1),(1,1))|
 \qed
 \end{eqnarray*}
 

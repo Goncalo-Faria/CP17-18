@@ -105,13 +105,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} nr. & 19
 \\\hline
-a11111 & Nome1 (preencher)	
+a80524 & Guilerme Viveiros	
 \\
-a22222 & Nome2 (preencher)	
+a81241 & José Boticas
 \\
-a33333 & Nome3 (preencher)	
+a86264 & Gonçalo Faria	
 \end{tabular}
 \end{center}
 
@@ -1375,7 +1375,7 @@ singletonbag = B. singl . split id (const 1)
 
 special f = map (id >< f) . unB
 
-muB = B. concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB 
+muB = B . concatMap ( Cp.ap . swap .(id >< special.(*)) ) . unB 0
 
 dist = D . uncurry special . split (divide . soma)  id where 
     soma = cataList ( either (const 0) (Cp.ap .((+).p2>< id ))) . unB 

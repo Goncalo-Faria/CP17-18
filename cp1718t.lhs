@@ -1332,19 +1332,21 @@ Por forma a obter a requerida compatibilidade de tipos, as funções calculadas 
 Com a ajuda do isomorfismo em baixo.
 
 \begin{eqnarray*}
+| flat . unflat = unflat . flat = id |
+\end{eqnarray*}
+
+\begin{eqnarray*}
 \xymatrix@@C=2cm{
     |A >< A >< A >< A|
+        \ar[r]^-{| flat |}
 &
     |(A >< A) >< (A >< A)|
-           \ar[l]_-{| flat |}
-&
-    |A >< A >< A >< A|
-           \ar[l]_-{| unflat |}
+           \ar[l]^-{| unflat |}
 }
 \end{eqnarray*}
 
-Para flat e unflat definidos em baixo.
 
+Para flat e unflat definidos em baixo.
 
 \begin{code}
 base k = (1, k+1, 1, 1)

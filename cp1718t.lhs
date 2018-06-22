@@ -1292,7 +1292,15 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 
 \begin{eqnarray*}
 \start
-|for loop (base k) = split (cataNat (either (split one (const (succ k))) (split mul (succ . p2)))) (cataNat (either (split one one) (split mul (succ . p2))))|
+|for loop (base k) |
+%
+\just\cong { Enunciado }
+%
+| split (split f l) (split g s) |
+%
+\just= { Demonstrações anteriores}
+%
+|split (cataNat (either (split one (const (succ k))) (split mul (succ . p2)))) (cataNat (either (split one one) (split mul (succ . p2))))|
 %
 \just={ Lei de banana-split (51) }
 %
@@ -1320,6 +1328,25 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 \qed
 \end{eqnarray*}
 
+Por forma a obter a requerida compatibilidade de tipos, as funções calculadas foram ligeiramente modificas.
+Com a ajuda do isomorfismo em baixo.
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |A >< A >< A >< A|
+&
+    |(A >< A) >< (A >< A)|
+           \ar[l]_-{| uncurry (flat id)|}
+&
+    |A >< A >< A >< A|
+           \ar[l]_-{| unflat |}
+}
+\end{eqnarray*}
+
+Onde unflat está definido como:
+\begin{eqnarray*}
+unflat (a,b,c,d) = ((a,b),(c,d))
+\end{eqnarray*}
 
 \begin{code}
 base k = (1, k+1, 1, 1)

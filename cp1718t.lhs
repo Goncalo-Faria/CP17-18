@@ -1096,10 +1096,10 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
     f k (d+1) = (d+k+1) * f k d
 )|
 %
-\just\equiv{ zero = (const 0); one = (const 1); Def-comp (74); (l k) d = d+k+1 }
+\just\equiv{ Def-const (76); Def-comp (74); l k d = d+k+1 }
 %
 |lcbr(
-    (f k) . zero = one
+    (f k) . zero d = one d
 )(
     (f k) . (succ d) =  mul ((f k) d, (l k) d)
 )|
@@ -1134,7 +1134,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
     l k (d+1) = l k d + 1
 )|
 %
-\just\equiv{ zero = (const 0); one = (const 1); Def-comp (74) }
+\just\equiv{ Def-const (76); Def-comp (74) }
 %
 |lcbr(
     (l k) . zero = succ . (const k)
@@ -1180,7 +1180,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 %
 |split (f k) (l k) =  cataNat (either (split one (const (succ k))) (split mul (succ .p2)))|
 %
-\just\equiv{ (split (const a) (const b)) = const (a,b) }
+\just\equiv{ Fusao-const (4) }
 %
 |split (f k) (l k) = cataNat (either (const (1, succ k)) (split mul (succ . p2)))|
 \qed
@@ -1194,7 +1194,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
     g (d+1) = (d+1) * (g d)
 )|
 %
-\just\equiv{ zero = (const 0); one = (const 1); Def-comp (74); s d = d+1 }
+\just\equiv{ Def-const (76); Def-comp (74); s d = d+1 }
 %
 |lcbr(
     g . zero d = one d
@@ -1232,7 +1232,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
     s (d+1) = s d + 1
 )|
 %
-\just\equiv{ Def-comp (74) }
+\just\equiv{ Def-const (76); Def-comp (74) }
 %
 |lcbr(
     s . zero d = one d
@@ -1256,11 +1256,11 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
     s . succ = succ . p2 . (split g s)
 )|
 %
-\just\equiv{ Eq-+ (27) }
+\just\equiv{ Eq-+ (27); Fusão-+ (20); }
 %
 |   s . either zero succ  = either one (succ. p2 . split g s ) |
 %
-\just\equiv{ Eq-+ (27) }
+\just\equiv{ Eq-+ (27); Absorção-+ (22); Natural-id (1); (either zero succ) = inNat; F(f) = id + f }
 %
 |s . in  = either one (succ . p2) . F (split g s) |
 \qed
@@ -1328,7 +1328,7 @@ outlineQTree f = uncurry (elementwise (curry (cond p1 p2 p1))).cataQTree (either
 \qed
 \end{eqnarray*}
 
-Por forma a obter a requerida compatibilidade de tipos, as funções calculadas foram ligeiramente modificas.
+Por forma a obter a requerida compatibilidade de tipos, as funções calculadas foram ligeiramente modificadas.
 Com a ajuda do isomorfismo em baixo.
 
 \begin{eqnarray*}
